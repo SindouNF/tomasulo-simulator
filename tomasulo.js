@@ -1,7 +1,7 @@
 // guardara as configuracoes que serao passadas para o programa
 // configuracoes possiveis: num de ciclos de determinado tipo de instrucao
 // (ld || sd || multd || divd || addd || subd || add || daddui || beq || bnez) + cycles
-var config = {};
+let config = {};
 
 
 class Instruction {
