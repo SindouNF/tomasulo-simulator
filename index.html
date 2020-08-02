@@ -1,19 +1,23 @@
 <!doctype html>
 <html>
 <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="tomasulo.js"></script>
+
     <meta charset="utf-8">
     <title>Tomasulo simulator!</title>
-    <script>
-        a = "Dicas de uso: \nPara inserir uma intrução na unidade escolha as instruções a serem utilizadas e seus respectivos registradores, então clique em 'CONFIRMAR' para executar os dados ou 'RESET' para limpar os campos\n\nO botão 'Próximo' avançará para o proximo ciclo e o botão 'Resultado' apresenta o resultado final da execução do algoritmo";
-        function funcao1() {
-            alert(a);
-        }
-    </script>
-    <script src="tomasulo.js"></script>
+
 </head>
+<style>
+    body {
+        background-color: #000000;
+        color: #ffffff;
+    }
+</style>
 <body>
     Hello, world! :) <br>
-    <input type="button" onclick="funcao1()" value="HELP" />
+    <input type="button" onclick="help()" value="HELP" />
+    <input type="button" onclick="read_file()" value ="TESTE" />
 </body>
 
 </html>
