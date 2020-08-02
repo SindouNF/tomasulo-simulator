@@ -12,6 +12,7 @@ let config = {
     "DADDUIcycles": 0,
     "BEQcycles": 0,
     "BNEZcycles": 0,
+    "qtyInstr": 0,
     "exec": "fast" // fast or slow
 };
 
@@ -21,7 +22,8 @@ class Instruction {
         // inst = OPCODE RESTO
         inst = inst.split(" ");
         this.opcode = inst[0];
-        this.rest = inst[1];
+        this.resto = inst[1].split(","); // guarda registradores e/ou label
+        // usar o switch para definir exatamente o que terá em cada caso
         switch(this.opcode) {
             case "SD":
                 this.type = "S";
@@ -45,6 +47,7 @@ class Instruction {
                 break;
         }
         this.cycles = config[opcode + "cycles"];
+
     }
 }
 
@@ -56,7 +59,24 @@ class ReservationStation {
         this.vk = null;
         this.qj = null;
         this.qk = null;
-        //this.time = null; implementar o tempo do ciclo dentro das estações
+        this.time = null; // implementar o tempo do ciclo dentro das estações
+    }
+
+    add_instruction(instruction, rstations) {
+        this.busy = true;
+        this.opcode = instruction.opcode;
+        if (typeof rstations !== undefined) { // para obter overload no método
+            // verifica se existem stations que estão usando os registradores da instrução
+            // para colocar em vj e vk
+        } 
+
+        // qj e qk guardam registradores ?
+
+        this.time = instruction.cycles;
+    }
+
+    is_busy() {
+        return this.busy;
     }
 }
 
@@ -131,11 +151,50 @@ class ExeUnit {
 class Tomasulo {
     constructor() {
         this.execution_unit = new ExeUnit(); 
+        this.instructions;
     }
-    
+    add_instructions(instructions) {
+        this.instructions = instructions;
+    }
+
     issue() {};
     execute() {};
     write() {};
+}
+
+class Queue {
+    constructor(inst) {
+        this.q = [];
+    }
+
+    peek() {
+        return this.q[0];
+    }
+
+    push_back(obj) {
+        this.q.push(obj);
+    }
+
+    pop_front() {
+        return this.q.shift();
+    }
+
+    empty() {
+        return Array.isArray(this.q) && this.q.length() === 0;
+    }
+}
+
+function read_file() {
+    var text;
+    $.get( "exemplos/1.txt", function(data) {
+        text = data;
+    });
+    alert(text);
+}
+
+function help() {
+    a = "Dicas de uso: \nPara inserir uma intrução na unidade escolha as instruções a serem utilizadas e seus respectivos registradores, então clique em 'CONFIRMAR' para executar os dados ou 'RESET' para limpar os campos\n\nO botão 'Próximo' avançará para o proximo ciclo e o botão 'Resultado' apresenta o resultado final da execução do algoritmo";
+    alert(a);
 }
 
 // pega instruction da entrada, joga para a reservation station e executa
