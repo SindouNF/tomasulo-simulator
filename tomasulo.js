@@ -186,7 +186,7 @@ class Queue {
 
 function read_file() {
     var text;
-    $.get( "exemplos/1.txt", function(data) {
+    $.get( "./exemplos/1.txt", function(data) {
         text = data;
     });
     alert(text);
