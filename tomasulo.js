@@ -44,6 +44,16 @@ class ReservationStation {
         this.vk = null;
         this.qj = null;
         this.qk = null;
+        //this.time = null; implementar o tempo do ciclo dentro das estações
+    }
+}
+
+// Unidade de carregamento 
+class LoadStoreUnit {
+    constructor() {
+        this.busy = false;
+        this.address = null;
+        //this.FunctUnit = null; estado atual dos registradores na unidade
     }
 }
 
