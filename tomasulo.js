@@ -1,7 +1,19 @@
 // guardara as configuracoes que serao passadas para o programa
 // configuracoes possiveis: num de ciclos de determinado tipo de instrucao
 // (ld || sd || multd || divd || addd || subd || add || daddui || beq || bnez) + cycles
-let config = {};
+let config = {
+    "LDcycles": 0,
+    "SDcycles": 0,
+    "MULTDcycles": 0,
+    "DIVDcycles": 0,
+    "ADDDcycles": 0,
+    "SUBDcycles": 0,
+    "ADDcycles": 0,
+    "DADDUIcycles": 0,
+    "BEQcycles": 0,
+    "BNEZcycles": 0,
+    "exec": "fast" // fast or slow
+};
 
 
 class Instruction {
@@ -39,7 +51,7 @@ class Instruction {
 class ReservationStation {
     constructor() {
         this.busy = false;
-        this.op_code = null;
+        this.opcode = null;
         this.vj = null;
         this.vk = null;
         this.qj = null;
