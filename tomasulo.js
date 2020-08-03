@@ -151,12 +151,9 @@ class ExeUnit {
 class Tomasulo {
     constructor() {
         this.execution_unit = new ExeUnit(); 
-        this.instructions;
+        this.instructions = new Queue();
+        read_file(instructions);
     }
-    add_instructions(instructions) {
-        this.instructions = instructions;
-    }
-
     issue() {};
     execute() {};
     write() {};
@@ -184,12 +181,17 @@ class Queue {
     }
 }
 
-function read_file() {
-    var text;
-    $.get( "./exemplos/1.txt", function(data) {
-        text = data;
+function read_file(instructions) {
+    $.get( "./exemplos/1.txt", function() {
+        alert("lido");
+    }).fail(function() {
+        alert("não lido")
+    }).done(function(data) {
+        data = data.split("\n");
+        for (let i = 0; i < data.length; i++) {
+            instructions.push_back(new Instruction(data[i]));
+        }
     });
-    alert(text);
 }
 
 function help() {
