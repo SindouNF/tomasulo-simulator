@@ -53,6 +53,7 @@ class Instruction {
 
 class ReservationStation {
     constructor() {
+        this.instruction = null;
         this.busy = false;
         this.opcode = null;
         this.vj = null;
@@ -63,6 +64,7 @@ class ReservationStation {
     }
 
     add_instruction(instruction, rstations) {
+        this.instruction = instruction;
         this.busy = true;
         this.opcode = instruction.opcode;
         if (typeof rstations !== undefined) { // para obter overload no método
@@ -74,9 +76,24 @@ class ReservationStation {
 
         this.time = instruction.cycles;
     }
+    clear() {
+        this.instruction = null;
+        this.busy = false;
+        this.opcode = null;
+        this.vj = null;
+        this.vk = null;
+        this.qj = null;
+        this.qk = null;
+        this.time = null;
+    }
 
-    is_busy() {
+    busy() {
         return this.busy;
+    }
+    
+    decrement_time() {
+        // para simular passagem de tempo, quando chegar em 0 significa que terminou de executar
+        this.time--;
     }
 }
 
@@ -86,6 +103,10 @@ class LoadStoreUnit {
         this.busy = false;
         this.address = null;
         //this.FunctUnit = null; estado atual dos registradores na unidade
+    }
+
+    busy() {
+        return this.busy;
     }
 }
 
