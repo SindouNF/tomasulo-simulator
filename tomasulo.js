@@ -115,15 +115,12 @@ class RegisterStatus {
     constructor() {
         this.registers = [];
         this.registers_fp = [];
-        this.initialize();
-    }
-
-    initialize() {
         for (let i = 0; i < 8; i++) {
-            this.registers[i] = new Register("R" + i);
-            this.registers_fp[i] = new Register("F" + (i * 2))
+            this.registers.push(new Register("R" + i));
+            this.registers_fp.push(new Register("F" + (i * 2)));
         }
     }
+
 }
 
 // classe para representar um registrador
