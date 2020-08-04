@@ -16,13 +16,12 @@ let config = {
     "exec": "fast" // fast or slow
 };
 
-
 class Instruction {
     constructor(inst) {
         // inst = OPCODE RESTO
-        inst = inst.split(" ");
-        this.opcode = inst[0];
-        this.resto = inst[1].split(","); // guarda registradores e/ou label
+        this.inst = inst;
+        this.opcode = inst.split(" ")[0];
+        this.resto = inst.split(" ").split(","); // guarda registradores e/ou label
         // usar o switch para definir exatamente o que terá em cada caso
         switch(this.opcode) {
             case "SD":
@@ -46,8 +45,7 @@ class Instruction {
                 this.type = "B";
                 break;
         }
-        this.cycles = config[opcode + "cycles"];
-
+        this.cycles = config[this.opcode + "cycles"];
     }
 }
 
@@ -61,6 +59,7 @@ class ReservationStation {
         this.qj = null;
         this.qk = null;
         this.time = null; // implementar o tempo do ciclo dentro das estações
+        // this.locked = null; // indica se está travada ou nÃo, por conflito de reg. - talvez inútil
     }
 
     add_instruction(instruction, rstations) {
@@ -196,6 +195,18 @@ class Queue {
 
     empty() {
         return Array.isArray(this.q) && this.q.length() === 0;
+    }
+}
+
+class InstructionTable {
+    constructor() {
+        this.instructions = [];
+        this.status = [];
+    }
+
+    add(instruction, cycle) {
+        this.instructions.push(instruction);
+        this.status.push([cycle]);
     }
 }
 
