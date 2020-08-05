@@ -155,6 +155,8 @@ class ExeUnit {
         this.store_unit = []; // 3
         this.load_unit = []; // 6
 
+        this.registers = new RegisterStatus();
+
         // inicializar unidades
         for (let i = 0; i < 3; i++) {
             // inicializando unidade de inteiro
