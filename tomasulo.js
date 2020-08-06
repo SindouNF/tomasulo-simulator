@@ -20,39 +20,50 @@ class Instruction {
         // inst = OPCODE RESTO
         this.inst = inst;
         this.opcode = inst.split(" ")[0];
-        this.resto = inst.split(" ").split(","); // guarda registradores e/ou label
+        this.resto = this.split(" ")[1].split(","); // guarda registradores e/ou label
         // usar o switch para definir exatamente o que terá em cada caso
         // ex: numa inst do tipo ADD, terá RD, RS e RT
         // numa inst do tipo BNEZ, terá RS e LABEL
         switch(this.opcode) {
             case "SD":
                 this.type = "S";
+                this.rs = resto[0];
+                this.rt = resto[1];
                 break;
             case "LD": 
                 this.type = "L";
+                this.rs = resto[0];
+                this.rt = resto[1];
                 break;
             case "MULTD":
             case "DIVD":
             case "ADDD":
             case "SUBD":
                 this.type = "F";
+                this.rs = resto[0];
+                this.rt = resto[1];
+                this.rd = resto[2];
                 break;
             case "ADD":
             case "DADDUI":
                 this.type = "R";
-                this.rs = null;
-                this.rt = null;
-                this.rd = null;
+                this.rs = resto[0];
+                this.rt = resto[1];
+                this.rd = resto[2];
                 break;
             case "BEQ":
-                this.rt = null;
+                this.type = "B"
+                this.rt = resto[0];
+                this.rs = resto[1];
+                this.label = resto[2];
                 // caso seja do tipo B, verificar se é BEQ ou BNEZ
                 // antes de presumir que tem RT, ou então poderá dar problema
                 // pois em BNEZ, rt = undefined
+                break;
             case "BNEZ":
                 this.type = "B";
-                this.rs = null;
-                this.label = null;
+                this.rs = resto[0];
+                this.label = resto[0];
                 break;
         }
         this.cycles = config[this.opcode + "cycles"];
