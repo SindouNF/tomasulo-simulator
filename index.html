@@ -1,22 +1,111 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
 <head>
+    <title>Tomasulo Simulator!</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" />
+    <meta charset="utf-8">
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="tomasulo.js"></script>
-
-    <meta charset="utf-8">
-    <title>Tomasulo simulator!</title>
-
 </head>
-<style>
-    body {
-        background-color: #000000;
-        color: #ffffff;
-    }
-</style>
-<body>
-    Hello, world! :) <br>
-    <input type="button" onclick="help()" value="HELP" />
-</body>
 
-</html>
+<body style="background-color: lightgray;">
+    <header>
+        <h1>Tomasulo Simulator</h1>
+        <h6>por Joab, Natanael, Paulo e Rafael</h6>
+    </header>
+
+    <div class="row mx-5">
+        <aside class="col-4">
+            <br>
+            <p>
+                <a href="help.html">
+                    <button type="button" name="ajuda" id="ajuda">HELP</button>
+                </a>
+            </p>
+            <br>
+            <p>
+                Exemplos prontos:<br>
+                <select name="exSelect" id="exSelect">
+                    <option value="00"></option>
+                    <option value="01">Exemplo 1</option>
+                    <option value="02">Exemplo 2</option>
+                    <option value="03">Exemplo 3</option>
+                    <option value="04">Exemplo 4</option>
+                    <option value="05">Exemplo 5</option>
+                    <option value="05">Exemplo 6</option>
+                </select>
+                <button type="submit" name="loadEx" id="loadEx">Carregar</button>
+            </p>
+            <p>
+                Número de instruções:<br>
+                <input type="number" name="nInst" id="nInst" value="1" min="1">
+                <button type="submit" name="confirmarNInst" id="confirmarNInst"> Confirmar </button>
+            </p>
+            <br>
+            <p>Lista de instruções:</p>
+            <div id="listaInstrucoes"></div>
+    
+            <br>
+            <p> Ciclos por instrução:</p>
+                <p>
+                    <td>ADD.D: </td>
+                    <td><input type="number" value="1" min="1" name="caddd" id="caddd"></td>
+                </p>
+                <p>
+                    <td>SUBD: </td>
+                    <td><input type="number" value="1" min="1" name="csubd" id="csubd"></td>
+                </p>
+                <p>
+                    <td>MULTD: </td>
+                    <td><input type="number" value="1" min="1" name="cmultd" id="cmultd"></td>
+                </p>
+                <p>
+                    <td>DIV.D: </td>
+                    <td><input type="number" value="1" min="1" name="cdivd" id="cdivd"></td>
+                </p>
+                <p>
+                    <td>L.D: </td>
+                    <td><input type="number" value="1" min="1" name="cld" id="cld"></td>
+                </p>
+                <p>
+                    <td>S.D: </td>
+                    <td><input type="number" value="1" min="1" name="csd" id="csd"></td>
+                </p>
+                <p>
+                    <td>ADD: </td>
+                    <td><input type="number" value="1" min="1" name="cadd" id="cadd"></td>
+                </p>
+                <p>
+                    <td>DADDUI: </td>
+                    <td><input type="number" value="1" min="1" name="cdaddui" id="cdaddui"></td>
+                </p>
+                <p>
+                    <td>BEQ: </td>
+                    <td><input type="number" value="1" min="1" name="cbeq" id="cbeq"></td>
+                </p>
+                <p>
+                    <td>BNEZ: </td>
+                    <td><input type="number" value="1" min="1" name="cbnez" id="cbnez"></td>
+                </p>
+            <br>
+            <button type="submit" id="enviar">Enviar</button>
+            <button type="reset" id="limpar">Limpar</button><br><br>
+        </aside>
+    
+
+        <main class="col">
+            <div>
+                <br><br><br>
+                <button type="button" id="proximo">Próxima etapa</button>
+                <button type="button" id="resultado">Resultado final</button>
+            </div>
+
+            <div id="clock"></div>
+            <div id="estadoInstrucao"></div>
+            <div id="estadoUF"></div>
+            <div id="memoria"></div>
+        </main>
+    </div>
+    
+</body>
