@@ -482,10 +482,10 @@ class ExeUnit {
                 if (!this.integer_unit[i].busy) {
                     // tem station disponivel
                     this.integer_unit[i].add_instruction(instruction, rstations, cycle);
-                    this.registers.add_station(instruction.j, "IntegerUnit", i);
-                    if (instruction.k !== undefined) {
-                        this.registers.add_station(instruction.k, "IntegerUnit", i);
-                    }
+                    // registers.add_station(instruction.j, "IntegerUnit", i);
+                    // if (instruction.k !== undefined) {
+                    //    this.registers.add_station(instruction.k, "IntegerUnit", i);
+                    // }
                     return true; // true adicionou
                 }
             }
@@ -687,6 +687,7 @@ class ExeUnit {
                             this.float_mult_div_unit[j].qk = null;
                         }
                     }
+                    /*
                     if (instruction.opcode === "BEQ") {
                         this.registers.update_reg_prefix(instruction.j, ("IntegerUnit" + i));
                         this.registers.update_reg_prefix(instruction.k, ("IntegerUnit" + i));
@@ -694,7 +695,8 @@ class ExeUnit {
                         this.registers.update_reg_prefix(instruction.j, ("IntegerUnit" + i));
                     } else {
                         this.registers.update_reg_prefix(instruction.i, ("IntegerUnit" + i));
-                    }
+                    }*/
+                    this.registers.update_reg_prefix(instruction.i, ("IntegerUnit" + i));
                     this.integer_unit[i].clear();
                     return;
                 }
