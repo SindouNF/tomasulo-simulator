@@ -1325,9 +1325,10 @@ $(document).ready(function() {
             data = data.split("\n");
             read_config(data);
             // talvez desnecessário
-            for (let i = 10; i < data.length; i++) {
+            for (let i = 10; i < data.length - 1; i++) {
                 document.getElementById("instBox").value += data[i] + "\n";
             }
+            document.getElementById("instBox").value += data[data.length - 1];
         });
     });
 
@@ -1347,12 +1348,14 @@ $(document).ready(function() {
             $(`#${key}`).val("1");
         }
         tomasulo = null;
+        instructions = null;
 
         $("#clock").html("");
         $("#estadoInstrucao").html("");
         // $("#estadoMemUF").html("");
         $("#estadoUF").html("");
         $("#estadoMem").html("");
+        $("#memoria").html("");
     })
     
     $("#loadTomasulo").click(function() {
