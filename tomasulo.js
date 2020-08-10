@@ -1340,15 +1340,12 @@ $(document).ready(function() {
         $("#exSelect").val("---");
         document.getElementById("instBox").value = "";
         loaded = false;
-        for (let i = 0; i < instructions.q.length; i++) {
-            instructions.pop_front();
-        }
+        instructions.q = [];
 
         for (var key in config) {
             $(`#${key}`).val("1");
         }
         tomasulo = null;
-        instructions = null;
 
         $("#clock").html("");
         $("#estadoInstrucao").html("");
