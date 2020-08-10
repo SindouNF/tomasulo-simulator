@@ -38,7 +38,11 @@
                 <button type="submit" name="loadEx" id="loadEx">Carregar</button>
             </p>
             Instruções:</p>
-            <textarea  rows="10" cols="50" name="instBox" id="instBox" placeholder="LD F0,0(R1)
+            <textarea  rows="16" cols="50" name="instBox" id="instBox" placeholder="Escreva aqui as instruções que serão rodadas.
+Dica: elas seguirão o formato das instruções abaixo. Para mais informações, clique no botão de Ajuda.
+Outra forma de verificar como o preenchimento deve ser feito é carregando um exemplo. Tenta aí! :)
+
+LD F0,0(R1)
 SD F2,0(R2)
 ADD R1,R2,R3
 ADDD F0,F2,F4
@@ -49,7 +53,7 @@ DADDUI R1,R1,4
 BNEZ R1,Loop
 BEQ R1,R2,Loop"></textarea><br>
 <button type="button" name="helpInst" id="helpInst">Ajuda</button>
-<button type="reset" name="instReset" id="instReset">Limpar caixa de instruções</button>
+<button type="reset" name="instReset" id="instReset">Limpar</button>
     
             <br>
             <p> Ciclos por instrução:</p>
