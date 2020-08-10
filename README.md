@@ -19,5 +19,5 @@ git clone https://github.com/noirecat/tomasulo-simulator
 ```
 2. Abrir o arquivo index.html no navegador de sua preferência.
 
-## Execução usando GitHub Pages
+## Execução online usando GitHub Pages
 1. Acessar o link https://noirecat.github.io/tomasulo-simulator/.
