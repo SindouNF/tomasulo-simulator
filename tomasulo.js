@@ -1,16 +1,9 @@
-// guardara as configuracoes que serao passadas para o programa
-// configuracoes possiveis: num de ciclos de determinado tipo de instrucao
-// (ld || sd || multd || divd || addd || subd || add || daddui || beq || bnez) + cycles
-
 class Instruction {
     constructor(inst, cycles) {
-        // inst = OPCODE RESTO
+
         this.inst = inst;
         this.opcode = inst.split(" ")[0];
-        this.resto = inst.split(" ")[1].split(","); // guarda registradores e/ou label
-        // usar o switch para definir exatamente o que terá em cada caso
-        // ex: numa inst do tipo ADD, terá RD, RS e RT
-        // numa inst do tipo BNEZ, terá RS e LABEL
+        this.resto = inst.split(" ")[1].split(","); 
 
         switch (this.opcode) {
             case "SD":
@@ -47,9 +40,6 @@ class Instruction {
                 this.i = this.resto[2]; // i
                 this.j = this.resto[0]; // j
                 this.k = this.resto[1];
-                // caso seja do tipo B, verificar se é BEQ ou BNEZ
-                // antes de presumir que tem RT, ou então poderá dar problema
-                // pois em BNEZ, rt = undefined
                 break;
             case "BNEZ":
                 this.type = "B";
@@ -70,9 +60,8 @@ class ReservationStation {
         this.vk = null;
         this.qj = null;
         this.qk = null;
-        this.time = null; // implementar o tempo do ciclo dentro das estações
+        this.time = null; 
         this.start = null;
-        // this.locked = null; // indica se está travada ou nÃo, por conflito de reg. - talvez inútil
     }
 
     add_instruction(instruction, rstations, cycle) {
@@ -89,7 +78,7 @@ class ReservationStation {
         } else {
             if (j) {
                 if (j[0] === "x") {
-                    j.shift();
+                    j = j.substr(1);
                     this.vj = j;
                 } else {
                     this.qj = rstations[0];
@@ -99,7 +88,7 @@ class ReservationStation {
             }
             if (k) {
                 if (k[0] === "x") {
-                    k.shift();
+                    k = k.substr(1);
                     this.vk = k;
                 } else {
                     this.qk = rstations[1];
@@ -134,46 +123,6 @@ class ReservationStation {
     }
 }
 
-// Unidade de carregamento 
-// talvez não seja necessária, podendo usar
-// uma reservation station "modificada"
-// talvez MEXER
-class LoadStoreUnit {
-    constructor() {
-        this.instruction = null;
-        this.busy = false;
-        this.address = null;
-        this.target = null;
-        this.time = null;
-        this.FunctUnit = null; // estado atual dos registradores na unidade, indica se alguma inst esta usando
-    }
-
-    add_instruction(instruction) {
-        this.instruction = instruction;
-        this.busy = true;
-        this.address = String(instruction.j) + "+" + String(instruction.k);
-        this.target = instruction.i;
-        this.time = instruction.cycles;
-    }
-
-    clear() {
-        this.instruction = null;
-        this.busy = false;
-        this.address = null;
-        this.target = null;
-        this.time = null;
-    }
-
-    decrement_time() {
-        this.time = this.time - 1;
-    }
-
-    busy() {
-        return this.busy;
-    }
-}
-
-// Qi - the reservation station whose result should be stored in this register (if blank or 0, no values are destined for this register)
 class RegisterStatus {
     constructor() {
         this.registers = [];
@@ -185,12 +134,16 @@ class RegisterStatus {
     }
 
     get_register(regJ, regK) {
-        regJ = regJ.split("");
-        regK = regK.split("");
-        var typeJ = regJ.shift();
-        var typeK = regK.shift();
-        regJ = regJ.join("");
-        regK = regK.join("");
+        if (regJ !== undefined) {
+            regJ = regJ.split("");
+            var typeJ = regJ.shift();
+            regJ = regJ.join("");
+        }
+        if (regK !== undefined) {
+            regK = regK.split("");
+            var typeK = regK.shift();
+            regK = regK.join("");
+        }
         var registers = [null, null];
         if (typeJ === "F") {
             registers[0] = (this.registers_fp[(parseInt(regJ) / 2)].station);
@@ -247,19 +200,13 @@ class RegisterStatus {
 
 }
 
-// classe para representar um registrador
-// guarda um nome de registrador (Ri, i = [0 - 7]) e (F(i * 2), i = 0 - 7)
-// e a station que está utilizando ele 
 class Register {
-    // talvez inutil, mas whatever
     constructor(name) {
         this.name = name;
         this.station = null;
     }
 }
 
-// TODO: não sei se seria melhor abordagem, nem se ExeUnit faz sentido neste caso
-// mas seria a classe que segura todas as reservation stations
 class ExeUnit {
     constructor() {
         this.integer_unit = []; // 3
@@ -504,21 +451,20 @@ class ExeUnit {
     }
 
     add_to_station(instruction, cycle) {
-        // TODO: terminar de colocar RSTATIONS nas outras instrucoes
         // auxiliar de issue()
         var rstations = this.registers.get_register(instruction.j, instruction.k);
+        console.log(rstations);
         if (instruction.type === "R") {
             for (let i = 0; i < this.integer_unit.length; i++) {
                 if (!this.integer_unit[i].busy) {
                     // tem station disponivel
                     this.integer_unit[i].add_instruction(instruction, rstations, cycle);
-                    this.registers.add_station(instruction.i, "IntAddSub", i);
+                    this.registers.add_station(instruction.i, "IntegerUnit", i);
                     return true; // true adicionou
                 }
             }
             return false;
         }
-        // MEXER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         else if (instruction.type === "L") {
             for (let i = 0; i < this.load_unit.length; i++) {
                 if (!this.load_unit[i].busy) {
@@ -531,13 +477,15 @@ class ExeUnit {
             }
             return false; // false nao adicionou
         }
-        // TALVEZ MEXER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         else if (instruction.type === "B") {
             for (let i = 0; i < this.integer_unit.length; i++) {
                 if (!this.integer_unit[i].busy) {
                     // tem station disponivel
                     this.integer_unit[i].add_instruction(instruction, rstations, cycle);
-                    this.registers.add_station(instruction.i, "IntAddSub", i);
+                    this.registers.add_station(instruction.j, "IntegerUnit", i);
+                    if (instruction.k !== undefined) {
+                        this.registers.add_station(instruction.k, "IntegerUnit", i);
+                    }
                     return true; // true adicionou
                 }
             }
@@ -560,14 +508,13 @@ class ExeUnit {
                     if (!this.float_add_sub_unit[i].busy) {
                         // tem station disponivel
                         this.float_add_sub_unit[i].add_instruction(instruction, rstations, cycle);
-                        this.registers.add_station(instruction.i, "FloatAddSub", i);
+                        this.registers.add_station(instruction.i, "FAddSub", i);
                         return true; // true adicionou
                     }
                 }
                 return false;
             }
         }
-        // MEXER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         else {
             // instrucao do tipo S
             for (let i = 0; i < this.store_unit.length; i++) {
@@ -581,18 +528,12 @@ class ExeUnit {
             return false; // false nao adicionou
         }
     }
-    // nome temporário, funcao que decrementa o tempo das instrucoes que estiverem numa reservation station
-    // de forma a simular a execucao
+
     run_stations(cycle) {
         // auxiliar de execute()
         // percorre todas stations e verifica se pode decrementar
         // decrementar no caso: simular execucão, passagem de um ciclo
-        // quando chegar a 0 na station, enviar a/as instrucao/os p/ que execute
-        // escreva o ciclo que terminou 
-        // quando chegar em 0, retornar quais instrucoes voltaram para que
-        // a tabela seja atualizada
 
-        // TODO: escrever execucao das outras instrucoes
         var stations_finished = []; // guarda as stations que terminaram de executar
         for (let i = 0; i < 3; i++) {
             // unidades de inteiro
@@ -615,8 +556,6 @@ class ExeUnit {
                     }
                 }
             }
-
-            // TODO _______________ TALVEZ ERRADO
 
             if (this.store_unit[i].busy) {
                 // nesse caso tem instrucao
@@ -650,13 +589,6 @@ class ExeUnit {
                     }
                 }
             }
-            /*
-            // inicializando unidade de store - talvez mudar
-            this.store_unit.push(new ReservationStation());
-            // inicializando unidade de load - talvez mudar
-            this.load_unit.push(new LoadStoreUnit());
-            this.load_unit.push(new LoadStoreUnit());
-            */
         }
 
         for (let i = 0; i < 2; i++) {
@@ -675,8 +607,6 @@ class ExeUnit {
 
     remove_from_station(instruction) {
         // auxiliar de write()
-        // p/ cada instrucao que remover, deve percorrer tudo novamente
-        // 
         // percorre registers caçando x ?
         // remove a instrucao que escreveu
         // acessa os registradores que fazem algo nela
@@ -685,11 +615,6 @@ class ExeUnit {
         // percorre as estacoes daquele tipo
         // acha a estacao da instruction
         // verifica em todas as estacoes se ela está em qj ou qk
-        // depois, acessa registers e verifica se aquele registrador
-        // eh o que esta
-        // se for, usar a funcao add prefix
-        // achando a estacao, acessa diretamente registers
-        // só percorro
         if (instruction.type === "R" || instruction.type === "B") {
             for (let i = 0; i < this.integer_unit.length; i++) {
                 if (this.integer_unit[i].instruction === instruction) {
@@ -697,55 +622,54 @@ class ExeUnit {
                     // pode ser o j e o k de algum
                     for (let j = 0; j < 3; j++) {
                         // para inteiro e B
-                        if (this.integer_unit[j].qj === ("IntAddSub" + i)) {
+                        if (this.integer_unit[j].qj === ("IntegerUnit" + i)) {
                             this.integer_unit[j].vj = "x" + this.integer_unit[j].qj;
                             this.integer_unit[j].qj = null;
                         }
-                        if (this.integer_unit[j].qk === ("IntAddSub" + i)) {
+                        if (this.integer_unit[j].qk === ("IntegerUnit" + i)) {
                             this.integer_unit[j].vk = "x" + this.integer_unit[j].qk;
                             this.integer_unit[j].qk = null;
                         }
-                        // outros tipos <<<<<< TODO
 
                         // para float addsub
                         // console.log(this.float_add_sub_unit[j].qj);
-                        if (this.float_add_sub_unit[j].qj === ("IntAddSub" + i)) {
+                        if (this.float_add_sub_unit[j].qj === ("IntegerUnit" + i)) {
                             // console.log("caiu aqui");
                             this.float_add_sub_unit[j].vj = "x" + this.float_add_sub_unit[j].qj;
                             this.float_add_sub_unit[j].qj = null;
                         }
-                        if (this.float_add_sub_unit[j].qk === ("IntAddSub" + i)) {
+                        if (this.float_add_sub_unit[j].qk === ("IntegerUnit" + i)) {
                             this.float_add_sub_unit[j].vk = "x" + this.float_add_sub_unit[j].qk;
                             this.float_add_sub_unit[j].qk = null;
                         }
                         // para load
-                        if (this.load_unit[j].qj === ("IntAddSub" + i)) {
+                        if (this.load_unit[j].qj === ("IntegerUnit" + i)) {
                             // console.log("caiu aqui");
                             this.load_unit[j].vj = "x" + this.load_unit[j].qj;
                             this.load_unit[j].qj = null;
                         }
-                        if (this.load_unit[j].qk === ("IntAddSub" + i)) {
+                        if (this.load_unit[j].qk === ("IntegerUnit" + i)) {
                             this.load_unit[j].vk = "x" + this.load_unit[j].qk;
                             this.load_unit[j].qk = null;
                         }
 
-                        if (this.load_unit[j + 3].qj === ("IntAddSub" + i)) {
+                        if (this.load_unit[j + 3].qj === ("IntegerUnit" + i)) {
                             // console.log("caiu aqui");
                             this.load_unit[j + 3].vj = "x" + this.load_unit[j + 3].qj;
                             this.load_unit[j + 3].qj = null;
                         }
-                        if (this.load_unit[j + 3].qk === ("IntAddSub" + i)) {
+                        if (this.load_unit[j + 3].qk === ("IntegerUnit" + i)) {
                             this.load_unit[j + 3].vk = "x" + this.load_unit[j + 3].qk;
                             this.load_unit[j + 3].qk = null;
                         }
 
                         // para store
-                        if (this.store_unit[j].qj === ("IntAddSub" + i)) {
+                        if (this.store_unit[j].qj === ("IntegerUnit" + i)) {
                             // console.log("caiu aqui");
                             this.store_unit[j].vj = "x" + this.store_unit[j].qj;
                             this.store_unit[j].qj = null;
                         }
-                        if (this.store_unit[j].qk === ("IntAddSub" + i)) {
+                        if (this.store_unit[j].qk === ("IntegerUnit" + i)) {
                             this.store_unit[j].vk = "x" + this.store_unit[j].qk;
                             this.store_unit[j].qk = null;
                         }
@@ -754,17 +678,23 @@ class ExeUnit {
 
                     for (let j = 0; j < 2; j++) {
                         // para float multdiv
-                        if (this.float_mult_div_unit[j].qj === ("IntAddSub" + i)) {
+                        if (this.float_mult_div_unit[j].qj === ("IntegerUnit" + i)) {
                             this.float_mult_div_unit[j].vj = "x" + this.float_mult_div_unit[j].qj;
                             this.float_mult_div_unit[j].qj = null;
                         }
-                        if (this.float_mult_div_unit[j].qk === ("IntAddSub" + i)) {
+                        if (this.float_mult_div_unit[j].qk === ("IntegerUnit" + i)) {
                             this.float_mult_div_unit[j].vk = "x" + this.float_mult_div_unit[j].qk;
                             this.float_mult_div_unit[j].qk = null;
                         }
                     }
-
-                    this.registers.update_reg_prefix(instruction.i, ("IntAddSub" + i));
+                    if (instruction.opcode === "BEQ") {
+                        this.registers.update_reg_prefix(instruction.j, ("IntegerUnit" + i));
+                        this.registers.update_reg_prefix(instruction.k, ("IntegerUnit" + i));
+                    } else if (instruction.opcode === "BNEZ") {
+                        this.registers.update_reg_prefix(instruction.j, ("IntegerUnit" + i));
+                    } else {
+                        this.registers.update_reg_prefix(instruction.i, ("IntegerUnit" + i));
+                    }
                     this.integer_unit[i].clear();
                     return;
                 }
@@ -784,7 +714,6 @@ class ExeUnit {
                             this.integer_unit[j].vk = "x" + this.integer_unit[j].qk;
                             this.integer_unit[j].qk = null;
                         }
-
 
                         // para float addsub
                         // console.log(this.float_add_sub_unit[j].qj);
@@ -828,8 +757,6 @@ class ExeUnit {
                             this.store_unit[j].vk = "x" + this.store_unit[j].qk;
                             this.store_unit[j].qk = null;
                         }
-
-                        // outros tipos <<<<<< TODO
                     }
                     for (let j = 0; j < 2; j++) {
                         // para float multdiv
@@ -862,7 +789,6 @@ class ExeUnit {
                             this.integer_unit[j].vk = "x" + this.integer_unit[j].qk;
                             this.integer_unit[j].qk = null;
                         }
-
 
                         // para float addsub
                         // console.log(this.float_add_sub_unit[j].qj);
@@ -907,7 +833,6 @@ class ExeUnit {
                             this.store_unit[j].qk = null;
                         }
 
-                        // outros tipos <<<<<< TODO
                     }
                     for (let j = 0; j < 2; j++) {
                         // para float multdiv
@@ -999,60 +924,60 @@ class ExeUnit {
                     if (this.float_add_sub_unit[i].instruction === instruction) {
                         for (let j = 0; j < 3; j++) {
                             // para float addsub
-                            if (this.float_add_sub_unit[j].qj === ("FloatAddSub" + i)) {
+                            if (this.float_add_sub_unit[j].qj === ("FAddSub" + i)) {
                                 this.float_add_sub_unit[j].vj = "x" + this.float_add_sub_unit[j].qj;
                                 this.float_add_sub_unit[j].qj = null;
                             }
-                            if (this.float_add_sub_unit[j].qk === ("FloatAddSub" + i)) {
+                            if (this.float_add_sub_unit[j].qk === ("FAddSub" + i)) {
                                 this.float_add_sub_unit[j].vk = "x" + this.float_add_sub_unit[j].qk;
                                 this.float_add_sub_unit[j].qk = null;
                             }
                             // para outras instrucoes - LD e SD
 
                             // para load
-                            if (this.load_unit[j].qj === ("FloatAddSub" + i)) {
+                            if (this.load_unit[j].qj === ("FAddSub" + i)) {
                                 // console.log("caiu aqui");
                                 this.load_unit[j].vj = "x" + this.load_unit[j].qj;
                                 this.load_unit[j].qj = null;
                             }
-                            if (this.load_unit[j].qk === ("FloatAddSub" + i)) {
+                            if (this.load_unit[j].qk === ("FAddSub" + i)) {
                                 this.load_unit[j].vk = "x" + this.load_unit[j].qk;
                                 this.load_unit[j].qk = null;
                             }
 
-                            if (this.load_unit[j + 3].qj === ("FloatAddSub" + i)) {
+                            if (this.load_unit[j + 3].qj === ("FAddSub" + i)) {
                                 // console.log("caiu aqui");
                                 this.load_unit[j + 3].vj = "x" + this.load_unit[j + 3].qj;
                                 this.load_unit[j + 3].qj = null;
                             }
-                            if (this.load_unit[j + 3].qk === ("FloatAddSub" + i)) {
+                            if (this.load_unit[j + 3].qk === ("FAddSub" + i)) {
                                 this.load_unit[j + 3].vk = "x" + this.load_unit[j + 3].qk;
                                 this.load_unit[j + 3].qk = null;
                             }
 
                             // para store
-                            if (this.store_unit[j].qj === ("FloatAddSub" + i)) {
+                            if (this.store_unit[j].qj === ("FAddSub" + i)) {
                                 // console.log("caiu aqui");
                                 this.store_unit[j].vj = "x" + this.store_unit[j].qj;
                                 this.store_unit[j].qj = null;
                             }
-                            if (this.store_unit[j].qk === ("FloatAddSub" + i)) {
+                            if (this.store_unit[j].qk === ("FAddSub" + i)) {
                                 this.store_unit[j].vk = "x" + this.store_unit[j].qk;
                                 this.store_unit[j].qk = null;
                             }
                         }
                         for (let j = 0; j < 2; j++) {
                             // para float multdiv
-                            if (this.float_mult_div_unit[j].qj === ("FloatAddSub" + i)) {
+                            if (this.float_mult_div_unit[j].qj === ("FAddSub" + i)) {
                                 this.float_mult_div_unit[j].vj = "x" + this.float_mult_div_unit[j].qj;
                                 this.float_mult_div_unit[j].qj = null;
                             }
-                            if (this.float_mult_div_unit[j].qk === ("FloatAddSub" + i)) {
+                            if (this.float_mult_div_unit[j].qk === ("FAddSub" + i)) {
                                 this.float_mult_div_unit[j].vk = "x" + this.float_mult_div_unit[j].qk;
                                 this.float_mult_div_unit[j].qk = null;
                             }
                         }
-                        this.registers.update_reg_prefix(instruction.i, ("FloatAddSub" + i));
+                        this.registers.update_reg_prefix(instruction.i, ("FAddSub" + i));
                         this.float_add_sub_unit[i].clear();
                         return;
                     }
@@ -1064,7 +989,6 @@ class ExeUnit {
     }
 }
 
-// a classe que junta tudo
 class Tomasulo {
     constructor(inst) {
         this.execution_unit = new ExeUnit();
@@ -1081,6 +1005,12 @@ class Tomasulo {
         }
     }
     issue(cycle) {
+        /*
+        Retrieve the next instruction from the head of the instruction queue. If the instruction operands are currently in the registers, then
+            If a matching functional unit is available, issue the instruction.
+            Else, as there is no available functional unit, stall the instruction until a station or buffer is free.
+        Otherwise, we can assume the operands are not in the registers, and so use virtual values. The functional unit must calculate the real value to keep track of the functional units that produce the operand.
+        */
         var next_inst = this.instructions.peek();
         if (this.execution_unit.add_to_station(next_inst, cycle)) {
             // console.log("add");
@@ -1088,18 +1018,12 @@ class Tomasulo {
             this.table.add(next_inst, cycle);
             this.instructions.pop_front();
         }
-        /*
-        Retrieve the next instruction from the head of the instruction queue. If the instruction operands are currently in the registers, then
-            If a matching functional unit is available, issue the instruction.
-            Else, as there is no available functional unit, stall the instruction until a station or buffer is free.
-        Otherwise, we can assume the operands are not in the registers, and so use virtual values. The functional unit must calculate the real value to keep track of the functional units that produce the operand.
-        */
-
     };
     execute(cycle) {
         // verifica se eh possivel terminar de executar a instrucao
         // quando time = 0 na reserv station, significa que terminou de executar
-        // dai limpar a station e adicionar o ciclo na tabela na instrucao
+        // dai limpar a station e adicionar o ciclo na tabela de status
+        // no final, recebe stations_finished e escreve
 
         /*
         If one or more of the operands is not yet available then: wait for operand to become available on the CDB.
@@ -1109,7 +1033,7 @@ class Tomasulo {
                 Else, if the instruction is a store then: wait for the value to be stored before sending it to the memory unit
         Else, the instruction is an arithmetic logic unit (ALU) operation then: execute the instruction at the corresponding functional unit
         */
-        // no final, recebe stations_finished e escreve
+
         var stations_finished = this.execution_unit.run_stations(cycle);
         for (let i = 0; i < stations_finished.length; i++) {
             // p/ cada instrucao de cá, percorrer tabela de instrucao
@@ -1122,6 +1046,11 @@ class Tomasulo {
         }
     };
     write(cycle) {
+        /*
+        If the instruction was an ALU operation
+            If the result is available, then: write it on the CDB and from there into the registers and any reservation stations waiting for this result
+        Else, if the instruction was a store then: write the data to memory during this step
+        */
         // se conseguir escrever, decrementar 1 de instructions_w
         for (let i = 0; i < this.table.instructions.length; i++) {
             if (this.table.status[i].length !== 2) {
@@ -1129,16 +1058,10 @@ class Tomasulo {
             }
             // se a execucao terminou no ciclo anterior, significa que devo escrever neste atual
             if (this.table.status[i][1] === (cycle - 1) && this.table.status[i][2] === undefined) {
+                // this.table.instructions[i] -> a instrucao que foi escrita
+                // remove_from_station acessa exe_unit e "limpa" tudo que era dependente da instrucao
                 this.table.status[i].push(cycle);
                 this.execution_unit.remove_from_station(this.table.instructions[i]);
-
-                /*
-                If the instruction was an ALU operation
-                    If the result is available, then: write it on the CDB and from there into the registers and any reservation stations waiting for this result
-                Else, if the instruction was a store then: write the data to memory during this step
-                */
-                // this.table.instructions[i] -> a instrucao que foi escrita
-                // acessa exe_unit e "limpa" tudo que era dependente da instrucao
                 this.instructions_w--;
             }
         }
@@ -1148,28 +1071,22 @@ class Tomasulo {
         // se ainda houver instruções na fila
         // e ainda houver isntruções que não foram escritas (instructions_w > 0)
         if (!this.finished) {
-            // console.log("executando: " + this.cycle);
             // verifica tipo da instrucao
-            // 
-            // console.log("instructions");
             if (!this.instructions.empty()) {
                 // se fila de isntrucoes não estiver vazia, precisa tentar dar issue 
                 this.issue(this.cycle);
             }
             this.execute(this.cycle);
             this.write(this.cycle);
-
-            this.execution_unit.station_status();
-
-            // antes de incrementar ciclo, atualizar diagramas das reservation stations e register status
-            // TODO: funcao para atualizar diagramas
-
-            this.table.update_inst_status();
             if (this.instructions_w > 0) {
                 this.cycle++;
             } else {
                 this.finished = true;
             }
+            this.execution_unit.station_status();
+
+            this.table.update_inst_status();
+            
         }
     }
 }
@@ -1219,7 +1136,6 @@ class InstructionTable {
     }
 
     update_inst_status() {
-        // ineficiente, mas funciona
         for (let i = 0; i < this.instructions.length; i++) {
             if (this.status[i][0] !== undefined) {
                 $(`#tomasTableS0${i}`).text(this.status[i][0]);
@@ -1245,8 +1161,8 @@ $(document).ready(function() {
         "DIVD": null,
         "ADDD": null,
         "SUBD": null,
-        "ADD": null, // feito
-        "DADDUI": null, // feito
+        "ADD": null, 
+        "DADDUI": null, 
         "BEQ": null,
         "BNEZ": null
     };
@@ -1324,7 +1240,6 @@ $(document).ready(function() {
             var opcode;
             data = data.split("\n");
             read_config(data);
-            // talvez desnecessário
             for (let i = 10; i < data.length - 1; i++) {
                 document.getElementById("instBox").value += data[i] + "\n";
             }
@@ -1349,7 +1264,6 @@ $(document).ready(function() {
 
         $("#clock").html("");
         $("#estadoInstrucao").html("");
-        // $("#estadoMemUF").html("");
         $("#estadoUF").html("");
         $("#estadoMem").html("");
         $("#memoria").html("");
@@ -1367,17 +1281,20 @@ $(document).ready(function() {
             config[key] = document.getElementById(key).value;
         }
 
-        // console.log(config);
 
         for (let i = 0; i < data.length; i++) {
             opcode = data[i].split(" ")[0];
-            // código para verificar se instruções estão escritas corretamente
-            instructions.push_back(new Instruction(data[i], config[opcode]));
+            if(verifyInstruction(i, data[i])) {
+                instructions.push_back(new Instruction(data[i], config[opcode]));
+            } else {
+                instructions.q = [];
+                return;
+            }
         }
         loaded = true;
         tomasulo = new Tomasulo(instructions);
 
-        // começar preparativos
+        // atualizar página com tabelas e valores importantes para execução
         $("#clock").html("<h3>Clock: 0</h3>");
         instructionStatus();
         reservationStatus();
@@ -1390,9 +1307,21 @@ $(document).ready(function() {
         for (let i = 0; i < tomasulo.instructions.length(); i++) {
             state += "<tr>" 
             state += "<td>" + tomasulo.table.instructions[i].inst + "</td>";
-            state += "<td>" + tomasulo.table.instructions[i].i + "</td>";
-            state += "<td>" + tomasulo.table.instructions[i].j + "</td>";
-            state += "<td>" + tomasulo.table.instructions[i].k + "</td>";
+            if(tomasulo.table.instructions[i].i !== undefined) {
+                state += "<td>" + tomasulo.table.instructions[i].i + "</td>";
+            } else {
+                state += "<td></td>";
+            }
+            if(tomasulo.table.instructions[i].j !== undefined) {
+                state += "<td>" + tomasulo.table.instructions[i].j + "</td>";
+            } else {
+                state += "<td></td>";
+            }
+            if(tomasulo.table.instructions[i].k !== undefined) {
+                state += "<td>" + tomasulo.table.instructions[i].k + "</td>";
+            } else {
+                state += "<td></td>";
+            }
             state += "<td id=\"tomasTableS0" + i + "\"></td>";
             state += "<td id=\"tomasTableS1" + i + "\"></td>";
             state += "<td id=\"tomasTableS2" + i + "\"></td>";
@@ -1472,18 +1401,169 @@ $(document).ready(function() {
     }
 
 
-    function verifyInstruction(instLine) {
+    function verifyInstruction(linha, inst) {
+        var instPossiveis = ["LD", "SD", "BNEZ", "BEQ", "ADD", "ADDD", "DADDUI", "SUBD", "MULTD", "DIVD"];
+        var inst = inst.split(" ");
+        var opcode = inst[0];
+        var data = inst[1];
+        var error = "";
+        if (instPossiveis.includes(opcode)) {
+            if (opcode === "BEQ") {
+                var regex = /^R[0-7],R[0-7],[a-zA-Z]{1,5}$/;
+                var regexB = /^R[0-7],[a-zA-Z]{1,5}$/;
+                if (regexB.test(data)) {
+                    error += "Na instrução BEQ da linha " + (linha + 1) + " você está usando 1 registrador, ao invés de dois. Verifique se a instrução desejada realmente é BEQ, e não BNEZ.";
+                    error += "\n\nExemplo de como deve ficar: BEQ R1,R2,LOOP";
+                    alert(error);
+                    return false;
+                }
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução BEQ na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que está usando os registradores corretos (o primeiro registrador é do tipo R, o segundo é do tipo R) e/ou que os números dos registradores são válidos (R0 até R7).";
+                    error += "\nAlém disso, verifique se está colocando o rótulo do branch na terceira entrada.";
+                    error += "\n\nExemplo de como deve ficar: BEQ R1,R2,LOOP";
+                    alert(error);
+                    return false;
+                }
+            }
+            if (opcode === "BNEZ") {
+                var regex = /^R[0-7],[a-zA-Z]{1,5}$/;
+                var regexB = /^R[0-7],R[0-7],[a-zA-Z]{1,5}$/;
+                if (regexB.test(data)) {
+                    error += "Na instrução BNEZ da linha " + (linha + 1) + " você está usando 2 registradores, ao invés de um. Verifique se a instrução desejada realmente é BNEZ, e não BEQ.";
+                    error += "\n\nExemplo de como deve ficar: BNEZ R2,LOOP";
+                    alert(error);
+                    return false;
+                }
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução BNEZ na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que está usando os registradores corretos (do tipo R) e/ou que os números dos registradores são válidos (R0 até R7).";
+                    error += "\nAlém disso, verifique se está colocando o rótulo do branch na segunda entrada.";
+                    error += "\n\nExemplo de como deve ficar: BNEZ R2,LOOP";
+                    alert(error);
+                    return false;
+                }
+            }
+            if (opcode === "LD") {
+                var regex = /^F(0|2|4|6|8|10|12|14),[0-9]+\(R[0-7]\)$/;
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução LD na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que todos estão separados por vírgulas, que está usando os registradores corretos (o primeiro registrador é do tipo F, o segundo é do tipo R) e/ou que os números dos registradores são válidos (F0 até F14, apenas pares, R0 até R7).";
+                    error += "\nAlém disso, verifique se está colocando um valor de offset.";
+                    error += "\n\nExemplo de como deve ficar: LD F2,14(R2)";
+                    alert(error);
+                    return false;
+                }
+            }
+            if (opcode === "SD") {
+                var regex = /^F(0|2|4|6|8|10|12|14),[0-9]+\(R[0-7]\)$/;
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução SD na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que todos estão separados por vírgulas, que está usando os registradores corretos (o primeiro registrador é do tipo F, o segundo é do tipo R) e/ou que os números dos registradores são válidos (F0 até F14, apenas pares, R0 até R7).";
+                    error += "\nAlém disso, verifique se está colocando um valor de offset.";
+                    error += "\n\nExemplo de como deve ficar: SD F2,14(R2)";
+                    alert(error);
+                    return false;
+                }
+            }
+            if (opcode === "ADD") {
+                var regex = /^R[0-7],R[0-7],R[0-7]$/;
+                var regexF = /^F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14)$/;
+                if (regexF.test(data)) {
+                    error += "Na instrução ADD da linha " + (linha + 1) + " você está usando apenas registradores de ponto flutuante. Verifique se realmente quer usar ADD, ou se faltou um D (ADDD).";
+                    alert(error);
+                    return false;
+                }
 
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução ADD na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que todos estão separados por vírgulas, que está usando os registradores corretos (apenas registradores que começam com R) e/ou que os números dos registradores são válidos (R0 até R7)";
+                    error += "\n\nExemplo de como deve ficar: ADD R1,R2,R3";
+                    alert(error);
+                    return false;
+                }
+            }
+            if (opcode === "DADDUI") {
+                var regex = /^R[0-7],R[0-7],[0-9]+$/;
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução DADDUI na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que todos estão separados por vírgulas, que está usando os registradores corretos (apenas registradores que começam com R) e/ou que os números dos registradores são válidos (R0 até R7) e que o último componente é um inteiro.";
+                    error += "\n\nExemplo de como deve ficar: DADDUI R1,R2,10";
+                    alert(error);
+                    return false;
+                }
+            }
+            if (opcode === "MULTD") {
+                var regex = /^F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14)$/;
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução MULTD na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que todos estão separados por vírgulas, que está usando os registradores corretos (apenas registradores que começam com F) e/ou que os números dos registradores são válidos (F0 até F14, apenas pares).";
+                    error += "\n\nExemplo de como deve ficar: MULTD F2,F0,F14";
+                    alert(error);
+                    return false;
+                }   
+            }
+            if (opcode === "DIVD") {
+                var regex = /^F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14)$/;
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução DIVD na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que todos estão separados por vírgulas, que está usando os registradores corretos (apenas registradores que começam com F) e/ou que os números dos registradores são válidos (F0 até F14, apenas pares).";
+                    error += "\n\nExemplo de como deve ficar: DIVD F2,F0,F14";
+                    alert(error);
+                    return false;
+                }
+            }
+            if (opcode === "SUBD") {
+                var regex = /^F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14)$/;
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução DIVD na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que todos estão separados por vírgulas, que está usando os registradores corretos (apenas registradores que começam com F) e/ou que os números dos registradores são válidos (F0 até F14, apenas pares).";
+                    error += "\n\nExemplo de como deve ficar: SUBD F2,F0,F14";
+                    alert(error);
+                    return false;
+                }
+            }
+            if (opcode === "ADDD") {
+                var regex = /^F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14),F(0|2|4|6|8|10|12|14)$/;
+                var regexADD = /^R[0-7],R[0-7],R[0-7]$/;
+                if (regexADD.test(data)) {
+                    error += "Na instrução ADDD da linha " + (linha + 1) + " você está usando apenas registradores de inteiros. Verifique se realmente quer usar ADDD, ou se há um D a mais (ADD).";
+                    alert(error);
+                    return false;
+                }
+                if (regex.test(data)) {
+                    return true;
+                } else {
+                    error += "A instrução ADDD na linha " + (linha + 1) + " está escrita de forma incorreta.\n\n";
+                    error += "Certifique-se de que tudo está separado por vírgulas e que não há espaços após as vírgulas, que todos estão separados por vírgulas, que está usando os registradores corretos (apenas registradores que começam com F) e/ou que os números dos registradores são válidos (F0 até F14, apenas pares).";
+                    error += "\n\nExemplo de como deve ficar: ADDD F2,F0,F14";
+                    alert(error);
+                    return false;
+                }
+            }
+        } else {
+            error += "A instrução na linha " + (linha + 1) + " é inválida. As instruções permitidas são: LD, SD, BNEZ, BEQ, ADD, ADDD, DADDUI, SUBD, MULTD, DIVD";
+            alert(error);
+            return false;
+        }
     }
 
 });
-
-
-
-// modo lento
-// on button click: t.run()
-
-// modo rapido
-// while (!t.over): t.run()
-
-// pega instruction da entrada, joga para a reservation station e executa
