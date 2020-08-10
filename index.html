@@ -27,7 +27,7 @@
             <p>
                 Exemplos prontos:<br>
                 <select name="exSelect" id="exSelect">
-                    <option value="00"></option>
+                    <option value="00">---</option>
                     <option value="01">Exemplo 1</option>
                     <option value="02">Exemplo 2</option>
                     <option value="03">Exemplo 3</option>
@@ -37,68 +37,73 @@
                 </select>
                 <button type="submit" name="loadEx" id="loadEx">Carregar</button>
             </p>
-            <p>
-                Número de instruções:<br>
-                <input type="number" name="nInst" id="nInst" value="1" min="1">
-                <button type="submit" name="confirmarNInst" id="confirmarNInst"> Confirmar </button>
-            </p>
-            <br>
-            <p>Lista de instruções:</p>
-            <div id="listaInstrucoes"></div>
+            Instruções:</p>
+            <textarea  rows="10" cols="50" name="instBox" id="instBox" placeholder="LD F0,0(R1)
+SD F2,0(R2)
+ADD R1,R2,R3
+ADDD F0,F2,F4
+SUBD F2,F4,F8
+MULTD F0,F2,F4
+DIVD F2,F4,F8
+DADDUI R1,R1,4
+BNEZ R1,Loop
+BEQ R1,R2,Loop"></textarea><br>
+<button type="button" name="helpInst" id="helpInst">Ajuda</button>
+<button type="reset" name="instReset" id="instReset">Limpar caixa de instruções</button>
     
             <br>
             <p> Ciclos por instrução:</p>
                 <p>
                     <td>ADD.D: </td>
-                    <td><input type="number" value="1" min="1" name="caddd" id="caddd"></td>
+                    <td><input type="number" value="1" min="1" name="cADDD" id="ADDD"></td>
                 </p>
                 <p>
                     <td>SUBD: </td>
-                    <td><input type="number" value="1" min="1" name="csubd" id="csubd"></td>
+                    <td><input type="number" value="1" min="1" name="cSUBD" id="SUBD"></td>
                 </p>
                 <p>
                     <td>MULTD: </td>
-                    <td><input type="number" value="1" min="1" name="cmultd" id="cmultd"></td>
+                    <td><input type="number" value="1" min="1" name="cMULTD" id="MULTD"></td>
                 </p>
                 <p>
                     <td>DIV.D: </td>
-                    <td><input type="number" value="1" min="1" name="cdivd" id="cdivd"></td>
+                    <td><input type="number" value="1" min="1" name="cDIVD" id="DIVD"></td>
                 </p>
                 <p>
                     <td>L.D: </td>
-                    <td><input type="number" value="1" min="1" name="cld" id="cld"></td>
+                    <td><input type="number" value="1" min="1" name="cLD" id="LD"></td>
                 </p>
                 <p>
                     <td>S.D: </td>
-                    <td><input type="number" value="1" min="1" name="csd" id="csd"></td>
+                    <td><input type="number" value="1" min="1" name="cSD" id="SD"></td>
                 </p>
                 <p>
                     <td>ADD: </td>
-                    <td><input type="number" value="1" min="1" name="cadd" id="cadd"></td>
+                    <td><input type="number" value="1" min="1" name="cADD" id="ADD"></td>
                 </p>
                 <p>
                     <td>DADDUI: </td>
-                    <td><input type="number" value="1" min="1" name="cdaddui" id="cdaddui"></td>
+                    <td><input type="number" value="1" min="1" name="cDADDUI" id="DADDUI"></td>
                 </p>
                 <p>
                     <td>BEQ: </td>
-                    <td><input type="number" value="1" min="1" name="cbeq" id="cbeq"></td>
+                    <td><input type="number" value="1" min="1" name="cBEQ" id="BEQ"></td>
                 </p>
                 <p>
                     <td>BNEZ: </td>
-                    <td><input type="number" value="1" min="1" name="cbnez" id="cbnez"></td>
+                    <td><input type="number" value="1" min="1" name="cBNEZ" id="BNEZ"></td>
                 </p>
             <br>
-            <button type="submit" id="enviar">Enviar</button>
-            <button type="reset" id="limpar">Limpar</button><br><br>
+            <button type="submit" id="loadTomasulo">Rodar o algoritmo</button>
+            <button type="reset" id="resetAll">Começar do zero</button><br><br>
         </aside>
     
 
         <main class="col">
             <div>
                 <br><br><br>
-                <button type="button" id="proximo">Próxima etapa</button>
-                <button type="button" id="resultado">Resultado final</button>
+                <button type="button" id="slow">Próxima etapa</button>
+                <button type="button" id="fast">Resultado final</button>
             </div>
 
             <div id="clock"></div>

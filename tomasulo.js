@@ -1,21 +1,9 @@
 // guardara as configuracoes que serao passadas para o programa
 // configuracoes possiveis: num de ciclos de determinado tipo de instrucao
 // (ld || sd || multd || divd || addd || subd || add || daddui || beq || bnez) + cycles
-let config = {
-    "LDcycles": 3,
-    "SDcycles": 3,
-    "MULTDcycles": 20,
-    "DIVDcycles": 40,
-    "ADDDcycles": 10,
-    "SUBDcycles": 10,
-    "ADDcycles": 5, // feito
-    "DADDUIcycles": 5, // feito
-    "BEQcycles": 5,
-    "BNEZcycles": 5
-};
 
 class Instruction {
-    constructor(inst) {
+    constructor(inst, cycles) {
         // inst = OPCODE RESTO
         this.inst = inst;
         this.opcode = inst.split(" ")[0];
@@ -69,7 +57,7 @@ class Instruction {
                 this.j = this.resto[0];
                 break;
         }
-        this.cycles = config[this.opcode + "cycles"];
+        this.cycles = cycles;
     }
 }
 
@@ -91,7 +79,7 @@ class ReservationStation {
         this.instruction = instruction;
         this.busy = true;
         this.opcode = instruction.opcode;
-        console.log(rstations);
+        // console.log(rstations);
         var j = rstations[0];
         var k = rstations[1];
         if (!j && !k) {
@@ -301,17 +289,218 @@ class ExeUnit {
     }
 
     station_status() {
-        console.log("int");
-        console.log(this.integer_unit);
-        console.log("fadd");
-        console.log(this.float_add_sub_unit);
-        console.log("md");
-        console.log(this.float_mult_div_unit);
-        console.log("ld");
-        console.log(this.load_unit);
-        console.log("sd");
-        console.log(this.store_unit);
-        console.log(this.registers)
+        for (let i = 0; i < 3; i++) {
+            // INT
+            $(`#IADDbusy${i}`).text(this.integer_unit[i].busy);
+            if(this.integer_unit[i].busy) {
+                $(`#IADDtime${i}`).text(this.integer_unit[i].time);
+                $(`#IADDop${i}`).text(this.integer_unit[i].opcode);
+                if (this.integer_unit[i].vj) {
+                    $(`#IADDvj${i}`).text(this.integer_unit[i].vj);
+                } else {
+                    $(`#IADDvj${i}`).text("");
+                }
+                if (this.integer_unit[i].vk) {
+                    $(`#IADDvk${i}`).text(this.integer_unit[i].vk);
+                } else {
+                    $(`#IADDvk${i}`).text("");
+                }
+                if (this.integer_unit[i].qj) {
+                    $(`#IADDqj${i}`).text(this.integer_unit[i].qj);
+                } else {
+                    $(`#IADDqj${i}`).text("");
+                }
+                if (this.integer_unit[i].qk) {
+                    $(`#IADDqk${i}`).text(this.integer_unit[i].qk);
+                } else {
+                    $(`#IADDqk${i}`).text("");
+                }
+            } else {
+                $(`#IADDtime${i}`).text("");
+                $(`#IADDop${i}`).text("");
+                $(`#IADDvj${i}`).text("");
+                $(`#IADDvk${i}`).text("");
+                $(`#IADDqj${i}`).text("");
+                $(`#IADDqk${i}`).text("");
+            }
+            // FADD
+            $(`#FADDbusy${i}`).text(this.float_add_sub_unit[i].busy);
+            if(this.float_add_sub_unit[i].busy) {
+                $(`#FADDtime${i}`).text(this.float_add_sub_unit[i].time);
+                $(`#FADDop${i}`).text(this.float_add_sub_unit[i].opcode);
+                if (this.float_add_sub_unit[i].vj) {
+                    $(`#FADDvj${i}`).text(this.float_add_sub_unit[i].vj);
+                } else {
+                    $(`#FADDvj${i}`).text("");
+                }
+                if (this.float_add_sub_unit[i].vk) {
+                    $(`#FADDvk${i}`).text(this.float_add_sub_unit[i].vk);
+                } else {
+                    $(`#FADDvk${i}`).text("");
+                }
+                if (this.float_add_sub_unit[i].qj) {
+                    $(`#FADDqj${i}`).text(this.float_add_sub_unit[i].qj);
+                } else {
+                    $(`#FADDqj${i}`).text("");
+                }
+                if (this.float_add_sub_unit[i].qk) {
+                    $(`#FADDqk${i}`).text(this.float_add_sub_unit[i].qk);
+                } else {
+                    $(`#FADDqk${i}`).text("");
+                }
+            } else {
+                $(`#FADDtime${i}`).text("");
+                $(`#FADDop${i}`).text("");
+                $(`#FADDvj${i}`).text("");
+                $(`#FADDvk${i}`).text("");
+                $(`#FADDqj${i}`).text("");
+                $(`#FADDqk${i}`).text("");
+            }
+            // LD
+            $(`#LUbusy${i}`).text(this.load_unit[i].busy);
+            $(`#LUbusy${(i + 3)}`).text(this.load_unit[i + 3].busy);
+            if(this.load_unit[i].busy) {
+                $(`#LUtime${i}`).text(this.load_unit[i].time);
+                $(`#LUop${i}`).text(this.load_unit[i].opcode);
+                if (this.load_unit[i].vj) {
+                    $(`#LUvj${i}`).text(this.load_unit[i].vj);
+                } else {
+                    $(`#LUvj${i}`).text("");
+                }
+                if (this.load_unit[i].vk) {
+                    $(`#LUvk${i}`).text(this.load_unit[i].vk);
+                } else {
+                    $(`#LUvk${i}`).text("");
+                }
+                if (this.load_unit[i].qj) {
+                    $(`#LUqj${i}`).text(this.load_unit[i].qj);
+                } else {
+                    $(`#LUqj${i}`).text("");
+                }
+                if (this.load_unit[i].qk) {
+                    $(`#LUqk${i}`).text(this.load_unit[i].qk);
+                } else {
+                    $(`#LUqk${i}`).text("");
+                }
+            } else {
+                $(`#LUtime${i}`).text("");
+                $(`#LUop${i}`).text("");
+                $(`#LUvj${i}`).text("");
+                $(`#LUvk${i}`).text("");
+                $(`#LUqj${i}`).text("");
+                $(`#LUqk${i}`).text("");
+            }
+            if(this.load_unit[i + 3].busy) {
+                $(`#LUtime${(i + 3)}`).text(this.load_unit[i + 3].time);
+                $(`#LUop${(i + 3)}`).text(this.load_unit[i + 3].opcode);
+                if (this.load_unit[i + 3].vj) {
+                    $(`#LUvj${(i + 3)}`).text(this.load_unit[i + 3].vj);
+                } else {
+                    $(`#LUvj${(i + 3)}`).text("");
+                }
+                if (this.load_unit[i + 3].vk) {
+                    $(`#LUvk${(i + 3)}`).text(this.load_unit[i + 3].vk);
+                } else {
+                    $(`#LUvk${(i + 3)}`).text("");
+                }
+                if (this.load_unit[i + 3].qj) {
+                    $(`#LUqj${(i + 3)}`).text(this.load_unit[i + 3].qj);
+                } else {
+                    $(`#LUqj${(i + 3)}`).text("");
+                }
+                if (this.load_unit[i + 3].qk) {
+                    $(`#LUqk${(i + 3)}`).text(this.load_unit[i + 3].qk);
+                } else {
+                    $(`#LUqk${(i + 3)}`).text("");
+                }
+            } else {
+                $(`#LUtime${(i + 3)}`).text("");
+                $(`#LUop${(i + 3)}`).text("");
+                $(`#LUvj${(i + 3)}`).text("");
+                $(`#LUvk${(i + 3)}`).text("");
+                $(`#LUqj${(i + 3)}`).text("");
+                $(`#LUqk${(i + 3)}`).text("");
+            }
+            // SD
+            $(`#SUbusy${i}`).text(this.store_unit[i].busy);
+            if(this.store_unit[i].busy) {
+                $(`#SUtime${i}`).text(this.store_unit[i].time);
+                $(`#SUop${i}`).text(this.store_unit[i].opcode);
+                if (this.store_unit[i].vj) {
+                    $(`#SUvj${i}`).text(this.store_unit[i].vj);
+                } else {
+                    $(`#SUvj${i}`).text("");
+                }
+                if (this.store_unit[i].vk) {
+                    $(`#SUvk${i}`).text(this.store_unit[i].vk);
+                } else {
+                    $(`#SUvk${i}`).text("");
+                }
+                if (this.store_unit[i].qj) {
+                    $(`#SUqj${i}`).text(this.store_unit[i].qj);
+                } else {
+                    $(`#SUqj${i}`).text("");
+                }
+                if (this.store_unit[i].qk) {
+                    $(`#SUqk${i}`).text(this.store_unit[i].qk);
+                } else {
+                    $(`#SUqk${i}`).text("");
+                }
+            } else {
+                $(`#SUtime${i}`).text("");
+                $(`#SUop${i}`).text("");
+                $(`#SUvj${i}`).text("");
+                $(`#SUvk${i}`).text("");
+                $(`#SUqj${i}`).text("");
+                $(`#SUqk${i}`).text("");
+            }
+
+        }
+        for (let i = 0; i < 2; i++) {
+            // MD
+            $(`#MDbusy${i}`).text(this.float_mult_div_unit[i].busy);
+            if(this.float_mult_div_unit[i].busy) {
+                $(`#MDtime${i}`).text(this.float_mult_div_unit[i].time);
+                $(`#MDop${i}`).text(this.float_mult_div_unit[i].opcode);
+                if (this.float_mult_div_unit[i].vj) {
+                    $(`#MDvj${i}`).text(this.float_mult_div_unit[i].vj);
+                } else {
+                    $(`#MDvj${i}`).text("");
+                }
+                if (this.float_mult_div_unit[i].vk) {
+                    $(`#MDvk${i}`).text(this.float_mult_div_unit[i].vk);
+                } else {
+                    $(`#MDvk${i}`).text("");
+                }
+                if (this.float_mult_div_unit[i].qj) {
+                    $(`#MDqj${i}`).text(this.float_mult_div_unit[i].qj);
+                } else {
+                    $(`#MDqj${i}`).text("");
+                }
+                if (this.float_mult_div_unit[i].qk) {
+                    $(`#MDqk${i}`).text(this.float_mult_div_unit[i].qk);
+                } else {
+                    $(`#MDqk${i}`).text("");
+                }
+            } else {
+                $(`#MDtime${i}`).text("");
+                $(`#MDop${i}`).text("");
+                $(`#MDvj${i}`).text("");
+                $(`#MDvk${i}`).text("");
+                $(`#MDqj${i}`).text("");
+                $(`#MDqk${i}`).text("");
+            }
+        }
+        for (let i = 0; i < 8; i++) {
+            if (this.registers.registers[i].station) {
+                $(`#R${i}`).text(this.registers.registers[i].station);
+            } 
+            if (this.registers.registers_fp[i].station) {
+                $(`#F${(i * 2)}`).text(this.registers.registers_fp[i].station);
+            } 
+            
+        }
+        //// console.log(this.registers);
     }
 
     add_to_station(instruction, cycle) {
@@ -323,7 +512,7 @@ class ExeUnit {
                 if (!this.integer_unit[i].busy) {
                     // tem station disponivel
                     this.integer_unit[i].add_instruction(instruction, rstations, cycle);
-                    this.registers.add_station(instruction.i, "IADD", i);
+                    this.registers.add_station(instruction.i, "IntAddSub", i);
                     return true; // true adicionou
                 }
             }
@@ -336,7 +525,7 @@ class ExeUnit {
                     // tem station disponivel
                     this.load_unit[i].add_instruction(instruction, rstations, cycle);
                     // LD
-                    this.registers.add_station(instruction.i, "LD", i);
+                    this.registers.add_station(instruction.i, "LoadUnit", i);
                     return true; // true adicionou
                 }
             }
@@ -348,7 +537,7 @@ class ExeUnit {
                 if (!this.integer_unit[i].busy) {
                     // tem station disponivel
                     this.integer_unit[i].add_instruction(instruction, rstations, cycle);
-                    this.registers.add_station(instruction.i, "IADD", i);
+                    this.registers.add_station(instruction.i, "IntAddSub", i);
                     return true; // true adicionou
                 }
             }
@@ -361,7 +550,7 @@ class ExeUnit {
 
                         // tem station disponivel
                         this.float_mult_div_unit[i].add_instruction(instruction, rstations, cycle);
-                        this.registers.add_station(instruction.i, "MD", i);
+                        this.registers.add_station(instruction.i, "MultDiv", i);
                         return true; // true adicionou
                     }
                 }
@@ -371,7 +560,7 @@ class ExeUnit {
                     if (!this.float_add_sub_unit[i].busy) {
                         // tem station disponivel
                         this.float_add_sub_unit[i].add_instruction(instruction, rstations, cycle);
-                        this.registers.add_station(instruction.i, "FADD", i);
+                        this.registers.add_station(instruction.i, "FloatAddSub", i);
                         return true; // true adicionou
                     }
                 }
@@ -383,10 +572,9 @@ class ExeUnit {
             // instrucao do tipo S
             for (let i = 0; i < this.store_unit.length; i++) {
                 if (!this.store_unit[i].busy) {
-                    console.log("asdasdsa");
                     // tem station disponivel
                     this.store_unit[i].add_instruction(instruction, rstations, cycle);
-                    this.registers.add_station(instruction.i, "SD", i);
+                    this.registers.add_station(instruction.i, "StoreUnit", i);
                     return true; // true adicionou
                 }
             }
@@ -509,55 +697,55 @@ class ExeUnit {
                     // pode ser o j e o k de algum
                     for (let j = 0; j < 3; j++) {
                         // para inteiro e B
-                        if (this.integer_unit[j].qj === ("IADD" + i)) {
+                        if (this.integer_unit[j].qj === ("IntAddSub" + i)) {
                             this.integer_unit[j].vj = "x" + this.integer_unit[j].qj;
                             this.integer_unit[j].qj = null;
                         }
-                        if (this.integer_unit[j].qk === ("IADD" + i)) {
+                        if (this.integer_unit[j].qk === ("IntAddSub" + i)) {
                             this.integer_unit[j].vk = "x" + this.integer_unit[j].qk;
                             this.integer_unit[j].qk = null;
                         }
                         // outros tipos <<<<<< TODO
 
                         // para float addsub
-                        console.log(this.float_add_sub_unit[j].qj);
-                        if (this.float_add_sub_unit[j].qj === ("IADD" + i)) {
-                            console.log("caiu aqui");
+                        // console.log(this.float_add_sub_unit[j].qj);
+                        if (this.float_add_sub_unit[j].qj === ("IntAddSub" + i)) {
+                            // console.log("caiu aqui");
                             this.float_add_sub_unit[j].vj = "x" + this.float_add_sub_unit[j].qj;
                             this.float_add_sub_unit[j].qj = null;
                         }
-                        if (this.float_add_sub_unit[j].qk === ("IADD" + i)) {
+                        if (this.float_add_sub_unit[j].qk === ("IntAddSub" + i)) {
                             this.float_add_sub_unit[j].vk = "x" + this.float_add_sub_unit[j].qk;
                             this.float_add_sub_unit[j].qk = null;
                         }
                         // para load
-                        if (this.load_unit[j].qj === ("IADD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.load_unit[j].qj === ("IntAddSub" + i)) {
+                            // console.log("caiu aqui");
                             this.load_unit[j].vj = "x" + this.load_unit[j].qj;
                             this.load_unit[j].qj = null;
                         }
-                        if (this.load_unit[j].qk === ("IADD" + i)) {
+                        if (this.load_unit[j].qk === ("IntAddSub" + i)) {
                             this.load_unit[j].vk = "x" + this.load_unit[j].qk;
                             this.load_unit[j].qk = null;
                         }
 
-                        if (this.load_unit[j + 3].qj === ("IADD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.load_unit[j + 3].qj === ("IntAddSub" + i)) {
+                            // console.log("caiu aqui");
                             this.load_unit[j + 3].vj = "x" + this.load_unit[j + 3].qj;
                             this.load_unit[j + 3].qj = null;
                         }
-                        if (this.load_unit[j + 3].qk === ("IADD" + i)) {
+                        if (this.load_unit[j + 3].qk === ("IntAddSub" + i)) {
                             this.load_unit[j + 3].vk = "x" + this.load_unit[j + 3].qk;
                             this.load_unit[j + 3].qk = null;
                         }
 
                         // para store
-                        if (this.store_unit[j].qj === ("IADD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.store_unit[j].qj === ("IntAddSub" + i)) {
+                            // console.log("caiu aqui");
                             this.store_unit[j].vj = "x" + this.store_unit[j].qj;
                             this.store_unit[j].qj = null;
                         }
-                        if (this.store_unit[j].qk === ("IADD" + i)) {
+                        if (this.store_unit[j].qk === ("IntAddSub" + i)) {
                             this.store_unit[j].vk = "x" + this.store_unit[j].qk;
                             this.store_unit[j].qk = null;
                         }
@@ -566,17 +754,17 @@ class ExeUnit {
 
                     for (let j = 0; j < 2; j++) {
                         // para float multdiv
-                        if (this.float_mult_div_unit[j].qj === ("IADD" + i)) {
+                        if (this.float_mult_div_unit[j].qj === ("IntAddSub" + i)) {
                             this.float_mult_div_unit[j].vj = "x" + this.float_mult_div_unit[j].qj;
                             this.float_mult_div_unit[j].qj = null;
                         }
-                        if (this.float_mult_div_unit[j].qk === ("IADD" + i)) {
+                        if (this.float_mult_div_unit[j].qk === ("IntAddSub" + i)) {
                             this.float_mult_div_unit[j].vk = "x" + this.float_mult_div_unit[j].qk;
                             this.float_mult_div_unit[j].qk = null;
                         }
                     }
 
-                    this.registers.update_reg_prefix(instruction.i, ("IADD" + i));
+                    this.registers.update_reg_prefix(instruction.i, ("IntAddSub" + i));
                     this.integer_unit[i].clear();
                     return;
                 }
@@ -588,55 +776,55 @@ class ExeUnit {
                     // pode ser o j e o k de algum
                     for (let j = 0; j < 3; j++) {
                         // para inteiro e B
-                        if (this.integer_unit[j].qj === ("SD" + i)) {
+                        if (this.integer_unit[j].qj === ("StoreUnit" + i)) {
                             this.integer_unit[j].vj = "x" + this.integer_unit[j].qj;
                             this.integer_unit[j].qj = null;
                         }
-                        if (this.integer_unit[j].qk === ("SD" + i)) {
+                        if (this.integer_unit[j].qk === ("StoreUnit" + i)) {
                             this.integer_unit[j].vk = "x" + this.integer_unit[j].qk;
                             this.integer_unit[j].qk = null;
                         }
 
 
                         // para float addsub
-                        console.log(this.float_add_sub_unit[j].qj);
-                        if (this.float_add_sub_unit[j].qj === ("SD" + i)) {
-                            console.log("caiu aqui");
+                        // console.log(this.float_add_sub_unit[j].qj);
+                        if (this.float_add_sub_unit[j].qj === ("StoreUnit" + i)) {
+                            // console.log("caiu aqui");
                             this.float_add_sub_unit[j].vj = "x" + this.float_add_sub_unit[j].qj;
                             this.float_add_sub_unit[j].qj = null;
                         }
-                        if (this.float_add_sub_unit[j].qk === ("SD" + i)) {
+                        if (this.float_add_sub_unit[j].qk === ("StoreUnit" + i)) {
                             this.float_add_sub_unit[j].vk = "x" + this.float_add_sub_unit[j].qk;
                             this.float_add_sub_unit[j].qk = null;
                         }
                         // para load
-                        if (this.load_unit[j].qj === ("SD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.load_unit[j].qj === ("StoreUnit" + i)) {
+                            // console.log("caiu aqui");
                             this.load_unit[j].vj = "x" + this.load_unit[j].qj;
                             this.load_unit[j].qj = null;
                         }
-                        if (this.load_unit[j].qk === ("SD" + i)) {
+                        if (this.load_unit[j].qk === ("StoreUnit" + i)) {
                             this.load_unit[j].vk = "x" + this.load_unit[j].qk;
                             this.load_unit[j].qk = null;
                         }
 
-                        if (this.load_unit[j + 3].qj === ("SD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.load_unit[j + 3].qj === ("StoreUnit" + i)) {
+                            // console.log("caiu aqui");
                             this.load_unit[j + 3].vj = "x" + this.load_unit[j + 3].qj;
                             this.load_unit[j + 3].qj = null;
                         }
-                        if (this.load_unit[j + 3].qk === ("SD" + i)) {
+                        if (this.load_unit[j + 3].qk === ("StoreUnit" + i)) {
                             this.load_unit[j + 3].vk = "x" + this.load_unit[j + 3].qk;
                             this.load_unit[j + 3].qk = null;
                         }
 
                         // para store
-                        if (this.store_unit[j].qj === ("SD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.store_unit[j].qj === ("StoreUnit" + i)) {
+                            // console.log("caiu aqui");
                             this.store_unit[j].vj = "x" + this.store_unit[j].qj;
                             this.store_unit[j].qj = null;
                         }
-                        if (this.store_unit[j].qk === ("SD" + i)) {
+                        if (this.store_unit[j].qk === ("StoreUnit" + i)) {
                             this.store_unit[j].vk = "x" + this.store_unit[j].qk;
                             this.store_unit[j].qk = null;
                         }
@@ -645,17 +833,17 @@ class ExeUnit {
                     }
                     for (let j = 0; j < 2; j++) {
                         // para float multdiv
-                        if (this.float_mult_div_unit[j].qj === ("SD" + i)) {
+                        if (this.float_mult_div_unit[j].qj === ("StoreUnit" + i)) {
                             this.float_mult_div_unit[j].vj = "x" + this.float_mult_div_unit[j].qj;
                             this.float_mult_div_unit[j].qj = null;
                         }
-                        if (this.float_mult_div_unit[j].qk === ("SD" + i)) {
+                        if (this.float_mult_div_unit[j].qk === ("StoreUnit" + i)) {
                             this.float_mult_div_unit[j].vk = "x" + this.float_mult_div_unit[j].qk;
                             this.float_mult_div_unit[j].qk = null;
                         }
                     }
-                    this.registers.update_reg_prefix(instruction.i, ("SD" + i));
-                    this.integer_unit[i].clear();
+                    this.registers.update_reg_prefix(instruction.i, ("StoreUnit" + i));
+                    this.store_unit[i].clear();
                     return;
                 }
             }
@@ -666,55 +854,55 @@ class ExeUnit {
                     // pode ser o j e o k de algum
                     for (let j = 0; j < 3; j++) {
                         // para inteiro e B
-                        if (this.integer_unit[j].qj === ("LD" + i)) {
+                        if (this.integer_unit[j].qj === ("LoadUnit" + i)) {
                             this.integer_unit[j].vj = "x" + this.integer_unit[j].qj;
                             this.integer_unit[j].qj = null;
                         }
-                        if (this.integer_unit[j].qk === ("LD" + i)) {
+                        if (this.integer_unit[j].qk === ("LoadUnit" + i)) {
                             this.integer_unit[j].vk = "x" + this.integer_unit[j].qk;
                             this.integer_unit[j].qk = null;
                         }
 
 
                         // para float addsub
-                        console.log(this.float_add_sub_unit[j].qj);
-                        if (this.float_add_sub_unit[j].qj === ("LD" + i)) {
-                            console.log("caiu aqui");
+                        // console.log(this.float_add_sub_unit[j].qj);
+                        if (this.float_add_sub_unit[j].qj === ("LoadUnit" + i)) {
+                            // console.log("caiu aqui");
                             this.float_add_sub_unit[j].vj = "x" + this.float_add_sub_unit[j].qj;
                             this.float_add_sub_unit[j].qj = null;
                         }
-                        if (this.float_add_sub_unit[j].qk === ("LD" + i)) {
+                        if (this.float_add_sub_unit[j].qk === ("LoadUnit" + i)) {
                             this.float_add_sub_unit[j].vk = "x" + this.float_add_sub_unit[j].qk;
                             this.float_add_sub_unit[j].qk = null;
                         }
                         // para load
-                        if (this.load_unit[j].qj === ("LD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.load_unit[j].qj === ("LoadUnit" + i)) {
+                            // console.log("caiu aqui");
                             this.load_unit[j].vj = "x" + this.load_unit[j].qj;
                             this.load_unit[j].qj = null;
                         }
-                        if (this.load_unit[j].qk === ("LD" + i)) {
+                        if (this.load_unit[j].qk === ("LoadUnit" + i)) {
                             this.load_unit[j].vk = "x" + this.load_unit[j].qk;
                             this.load_unit[j].qk = null;
                         }
 
-                        if (this.load_unit[j + 3].qj === ("LD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.load_unit[j + 3].qj === ("LoadUnit" + i)) {
+                            // console.log("caiu aqui");
                             this.load_unit[j + 3].vj = "x" + this.load_unit[j + 3].qj;
                             this.load_unit[j + 3].qj = null;
                         }
-                        if (this.load_unit[j + 3].qk === ("LD" + i)) {
+                        if (this.load_unit[j + 3].qk === ("LoadUnit" + i)) {
                             this.load_unit[j + 3].vk = "x" + this.load_unit[j + 3].qk;
                             this.load_unit[j + 3].qk = null;
                         }
 
                         // para store
-                        if (this.store_unit[j].qj === ("LD" + i)) {
-                            console.log("caiu aqui");
+                        if (this.store_unit[j].qj === ("LoadUnit" + i)) {
+                            // console.log("caiu aqui");
                             this.store_unit[j].vj = "x" + this.store_unit[j].qj;
                             this.store_unit[j].qj = null;
                         }
-                        if (this.store_unit[j].qk === ("LD" + i)) {
+                        if (this.store_unit[j].qk === ("LoadUnit" + i)) {
                             this.store_unit[j].vk = "x" + this.store_unit[j].qk;
                             this.store_unit[j].qk = null;
                         }
@@ -723,17 +911,17 @@ class ExeUnit {
                     }
                     for (let j = 0; j < 2; j++) {
                         // para float multdiv
-                        if (this.float_mult_div_unit[j].qj === ("LD" + i)) {
+                        if (this.float_mult_div_unit[j].qj === ("LoadUnit" + i)) {
                             this.float_mult_div_unit[j].vj = "x" + this.float_mult_div_unit[j].qj;
                             this.float_mult_div_unit[j].qj = null;
                         }
-                        if (this.float_mult_div_unit[j].qk === ("LD" + i)) {
+                        if (this.float_mult_div_unit[j].qk === ("LoadUnit" + i)) {
                             this.float_mult_div_unit[j].vk = "x" + this.float_mult_div_unit[j].qk;
                             this.float_mult_div_unit[j].qk = null;
                         }
                     }
-                    this.registers.update_reg_prefix(instruction.i, ("LD" + i));
-                    this.integer_unit[i].clear();
+                    this.registers.update_reg_prefix(instruction.i, ("LoadUnit" + i));
+                    this.load_unit[i].clear();
                     return;
                 }
             }
@@ -743,46 +931,46 @@ class ExeUnit {
                     if (this.float_mult_div_unit[i].instruction === instruction) {
                         for (let j = 0; j < 3; j++) {
                             // para float addsub
-                            console.log(this.float_add_sub_unit[j].qj);
-                            if (this.float_add_sub_unit[j].qj === ("MD" + i)) {
-                                console.log("caiu aqui");
+                            // console.log(this.float_add_sub_unit[j].qj);
+                            if (this.float_add_sub_unit[j].qj === ("MultDiv" + i)) {
+                                // console.log("caiu aqui");
                                 this.float_add_sub_unit[j].vj = "x" + this.float_add_sub_unit[j].qj;
                                 this.float_add_sub_unit[j].qj = null;
                             }
-                            if (this.float_add_sub_unit[j].qk === ("MD" + i)) {
+                            if (this.float_add_sub_unit[j].qk === ("MultDiv" + i)) {
                                 this.float_add_sub_unit[j].vk = "x" + this.float_add_sub_unit[j].qk;
                                 this.float_add_sub_unit[j].qk = null;
                             }
                             // para outras instrucoes - LD e SD
 
                             // para load
-                            if (this.load_unit[j].qj === ("MD" + i)) {
-                                console.log("caiu aqui");
+                            if (this.load_unit[j].qj === ("MultDiv" + i)) {
+                                // console.log("caiu aqui");
                                 this.load_unit[j].vj = "x" + this.load_unit[j].qj;
                                 this.load_unit[j].qj = null;
                             }
-                            if (this.load_unit[j].qk === ("MD" + i)) {
+                            if (this.load_unit[j].qk === ("MultDiv" + i)) {
                                 this.load_unit[j].vk = "x" + this.load_unit[j].qk;
                                 this.load_unit[j].qk = null;
                             }
 
-                            if (this.load_unit[j + 3].qj === ("MD" + i)) {
-                                console.log("caiu aqui");
+                            if (this.load_unit[j + 3].qj === ("MultDiv" + i)) {
+                                // console.log("caiu aqui");
                                 this.load_unit[j + 3].vj = "x" + this.load_unit[j + 3].qj;
                                 this.load_unit[j + 3].qj = null;
                             }
-                            if (this.load_unit[j + 3].qk === ("MD" + i)) {
+                            if (this.load_unit[j + 3].qk === ("MultDiv" + i)) {
                                 this.load_unit[j + 3].vk = "x" + this.load_unit[j + 3].qk;
                                 this.load_unit[j + 3].qk = null;
                             }
 
                             // para store
-                            if (this.store_unit[j].qj === ("MD" + i)) {
-                                console.log("caiu aqui");
+                            if (this.store_unit[j].qj === ("MultDiv" + i)) {
+                                // console.log("caiu aqui");
                                 this.store_unit[j].vj = "x" + this.store_unit[j].qj;
                                 this.store_unit[j].qj = null;
                             }
-                            if (this.store_unit[j].qk === ("MD" + i)) {
+                            if (this.store_unit[j].qk === ("MultDiv" + i)) {
                                 this.store_unit[j].vk = "x" + this.store_unit[j].qk;
                                 this.store_unit[j].qk = null;
                             }
@@ -791,16 +979,16 @@ class ExeUnit {
 
                         for (let j = 0; j < 2; j++) {
                             // para float multdiv
-                            if (this.float_mult_div_unit[j].qj === ("MD" + i)) {
+                            if (this.float_mult_div_unit[j].qj === ("MultDiv" + i)) {
                                 this.float_mult_div_unit[j].vj = "x" + this.float_mult_div_unit[j].qj;
                                 this.float_mult_div_unit[j].qj = null;
                             }
-                            if (this.float_mult_div_unit[j].qk === ("MD" + i)) {
+                            if (this.float_mult_div_unit[j].qk === ("MultDiv" + i)) {
                                 this.float_mult_div_unit[j].vk = "x" + this.float_mult_div_unit[j].qk;
                                 this.float_mult_div_unit[j].qk = null;
                             }
                         }
-                        this.registers.update_reg_prefix(instruction.i, ("MD" + i));
+                        this.registers.update_reg_prefix(instruction.i, ("MultDiv" + i));
                         this.float_mult_div_unit[i].clear();
                         return;
                     }
@@ -811,60 +999,60 @@ class ExeUnit {
                     if (this.float_add_sub_unit[i].instruction === instruction) {
                         for (let j = 0; j < 3; j++) {
                             // para float addsub
-                            if (this.float_add_sub_unit[j].qj === ("FADD" + i)) {
+                            if (this.float_add_sub_unit[j].qj === ("FloatAddSub" + i)) {
                                 this.float_add_sub_unit[j].vj = "x" + this.float_add_sub_unit[j].qj;
                                 this.float_add_sub_unit[j].qj = null;
                             }
-                            if (this.float_add_sub_unit[j].qk === ("FADD" + i)) {
+                            if (this.float_add_sub_unit[j].qk === ("FloatAddSub" + i)) {
                                 this.float_add_sub_unit[j].vk = "x" + this.float_add_sub_unit[j].qk;
                                 this.float_add_sub_unit[j].qk = null;
                             }
                             // para outras instrucoes - LD e SD
 
                             // para load
-                            if (this.load_unit[j].qj === ("FADD" + i)) {
-                                console.log("caiu aqui");
+                            if (this.load_unit[j].qj === ("FloatAddSub" + i)) {
+                                // console.log("caiu aqui");
                                 this.load_unit[j].vj = "x" + this.load_unit[j].qj;
                                 this.load_unit[j].qj = null;
                             }
-                            if (this.load_unit[j].qk === ("FADD" + i)) {
+                            if (this.load_unit[j].qk === ("FloatAddSub" + i)) {
                                 this.load_unit[j].vk = "x" + this.load_unit[j].qk;
                                 this.load_unit[j].qk = null;
                             }
 
-                            if (this.load_unit[j + 3].qj === ("FADD" + i)) {
-                                console.log("caiu aqui");
+                            if (this.load_unit[j + 3].qj === ("FloatAddSub" + i)) {
+                                // console.log("caiu aqui");
                                 this.load_unit[j + 3].vj = "x" + this.load_unit[j + 3].qj;
                                 this.load_unit[j + 3].qj = null;
                             }
-                            if (this.load_unit[j + 3].qk === ("FADD" + i)) {
+                            if (this.load_unit[j + 3].qk === ("FloatAddSub" + i)) {
                                 this.load_unit[j + 3].vk = "x" + this.load_unit[j + 3].qk;
                                 this.load_unit[j + 3].qk = null;
                             }
 
                             // para store
-                            if (this.store_unit[j].qj === ("FADD" + i)) {
-                                console.log("caiu aqui");
+                            if (this.store_unit[j].qj === ("FloatAddSub" + i)) {
+                                // console.log("caiu aqui");
                                 this.store_unit[j].vj = "x" + this.store_unit[j].qj;
                                 this.store_unit[j].qj = null;
                             }
-                            if (this.store_unit[j].qk === ("FADD" + i)) {
+                            if (this.store_unit[j].qk === ("FloatAddSub" + i)) {
                                 this.store_unit[j].vk = "x" + this.store_unit[j].qk;
                                 this.store_unit[j].qk = null;
                             }
                         }
                         for (let j = 0; j < 2; j++) {
                             // para float multdiv
-                            if (this.float_mult_div_unit[j].qj === ("FADD" + i)) {
+                            if (this.float_mult_div_unit[j].qj === ("FloatAddSub" + i)) {
                                 this.float_mult_div_unit[j].vj = "x" + this.float_mult_div_unit[j].qj;
                                 this.float_mult_div_unit[j].qj = null;
                             }
-                            if (this.float_mult_div_unit[j].qk === ("FADD" + i)) {
+                            if (this.float_mult_div_unit[j].qk === ("FloatAddSub" + i)) {
                                 this.float_mult_div_unit[j].vk = "x" + this.float_mult_div_unit[j].qk;
                                 this.float_mult_div_unit[j].qk = null;
                             }
                         }
-                        this.registers.update_reg_prefix(instruction.i, ("FADD" + i));
+                        this.registers.update_reg_prefix(instruction.i, ("FloatAddSub" + i));
                         this.float_add_sub_unit[i].clear();
                         return;
                     }
@@ -886,12 +1074,17 @@ class Tomasulo {
         // table = 2 arrays, um para inst e outro para status: [inst, (...)] e [["ciclo issue", "ciclo exe", "ciclo write"], (...)] 
         this.cycle = 1;
         this.finished = false;
+
+        for (let i = 0; i < this.instructions.length(); i++) {
+            this.table.instructions.push(this.instructions.peek(i));
+            this.table.status.push([]);
+        }
     }
     issue(cycle) {
         var next_inst = this.instructions.peek();
         if (this.execution_unit.add_to_station(next_inst, cycle)) {
-            console.log("add");
-            console.log(next_inst);
+            // console.log("add");
+            // console.log(next_inst);
             this.table.add(next_inst, cycle);
             this.instructions.pop_front();
         }
@@ -955,10 +1148,10 @@ class Tomasulo {
         // se ainda houver instruções na fila
         // e ainda houver isntruções que não foram escritas (instructions_w > 0)
         if (!this.finished) {
-            console.log("executando: " + this.cycle);
+            // console.log("executando: " + this.cycle);
             // verifica tipo da instrucao
             // 
-            console.log("instructions");
+            // console.log("instructions");
             if (!this.instructions.empty()) {
                 // se fila de isntrucoes não estiver vazia, precisa tentar dar issue 
                 this.issue(this.cycle);
@@ -971,7 +1164,7 @@ class Tomasulo {
             // antes de incrementar ciclo, atualizar diagramas das reservation stations e register status
             // TODO: funcao para atualizar diagramas
 
-            this.table.print_inst_status();
+            this.table.update_inst_status();
             if (this.instructions_w > 0) {
                 this.cycle++;
             } else {
@@ -986,7 +1179,10 @@ class Queue {
         this.q = [];
     }
 
-    peek() {
+    peek(i) {
+        if (i !== undefined) {
+            return this.q[i];
+        }
         return this.q[0];
     }
 
@@ -1014,53 +1210,275 @@ class InstructionTable {
     }
 
     add(instruction, cycle) {
-        this.instructions.push(instruction);
-        this.status.push([cycle]);
+        for (let i = 0; i < this.instructions.length; i++) {
+            if (this.instructions[i] === instruction) {
+                this.status[i].push(cycle);
+                return;
+            }
+        }
     }
 
-    print_inst_status() {
-        console.log(this.instructions);
-        console.log(this.status);
+    update_inst_status() {
+        // ineficiente, mas funciona
+        for (let i = 0; i < this.instructions.length; i++) {
+            if (this.status[i][0] !== undefined) {
+                $(`#tomasTableS0${i}`).text(this.status[i][0]);
+            }
+            if (this.status[i][1] !== undefined) {
+                $(`#tomasTableS1${i}`).text(this.status[i][1]);
+            }
+            if (this.status[i][2] !== undefined) {
+                $(`#tomasTableS2${i}`).text(this.status[i][2]);
+            }
+        }
     }
 }
 
 /////////////// logica principal
 
-function read_file() {
-    $.get("https://files.catbox.moe/f3n14x.txt", function() {}).fail(function() {}).done(function(data) {
-        x = new Queue();
-        data = data.split("\n");
-        for (let i = 0; i < data.length; i++) {
-            x.push_back(new Instruction(data[i]));
-        }
-        t = new Tomasulo(x);
-    });
-}
+$(document).ready(function() {
 
-function load_string() {
-    var data = "MULTD F0,F2,F4\nADDD F4,F0,F2\nDIVD F6,F0,F2\nADD R1,R3,R5\nSUBD F8,F6,F2\nDADDUI R3,R2,17";
-    data = data.split("\n");
-    x = new Queue();
-    for (let i = 0; i < data.length; i++) {
-        x.push_back(new Instruction(data[i]));
-    }
-    t = new Tomasulo(x);
-}
-
-function help() {
-    a = "Dicas de uso: \nPara inserir uma intrução na unidade escolha as instruções a serem utilizadas e seus respectivos registradores, então clique em 'CONFIRMAR' para executar os dados ou 'RESET' para limpar os campos\n\nO botão 'Próximo' avançará para o proximo ciclo e o botão 'Resultado' apresenta o resultado final da execução do algoritmo";
-    alert(a);
-}
-
-var t;
-
-function fast() {
-    var i = 0;
-    while (i < 60) {
-        t.run();
-        i++;
+    let config = {
+        "LD": null,
+        "SD": null,
+        "MULTD": null,
+        "DIVD": null,
+        "ADDD": null,
+        "SUBD": null,
+        "ADD": null, // feito
+        "DADDUI": null, // feito
+        "BEQ": null,
+        "BNEZ": null
     };
-}
+
+    let instructions = new Queue();
+
+    let nInst;
+
+    let loaded = false;
+    let tomasulo; // variavel da classe tomasulo
+
+    function help() {
+        a = "Dicas de uso: \nPara inserir uma intrução na unidade escolha as instruções a serem utilizadas e seus respectivos registradores, então clique em 'CONFIRMAR' para executar os dados ou 'RESET' para limpar os campos\n\nO botão 'Próximo' avançará para o proximo ciclo e o botão 'Resultado' apresenta o resultado final da execução do algoritmo";
+        alert(a);
+    }
+        
+    function read_config(data) {
+        config_temp = {
+            "LD": parseInt(data[0]),
+            "SD": parseInt(data[1]),
+            "MULTD": parseInt(data[2]),
+            "DIVD": parseInt(data[3]),
+            "ADDD": parseInt(data[4]),
+            "SUBD": parseInt(data[5]),
+            "ADD": parseInt(data[6]), 
+            "DADDUI": parseInt(data[7]),
+            "BEQ": parseInt(data[8]),
+            "BNEZ": parseInt(data[9])
+        };
+        for (var key in config_temp) {
+            $(`#${key}`).val(config_temp[key]);
+        }
+    }
+
+    $("#fast").click(function() {
+        if (!loaded) {
+            alert("Carregue um exemplo ou entre com as instruções manualmente.");
+            return;
+        }
+        if (tomasulo.finished) {
+            alert("Execução está completa.");
+            return;
+        }
+        while (!tomasulo.finished) {
+            $("#clock").html("<h3>Clock: <small id='clock'>" + tomasulo.cycle + "</small></h3>");
+            tomasulo.run();
+        };
+    })
+
+    $("#slow").click(function() {
+        if (!loaded) {
+            alert("Carregue um exemplo ou entre com as instruções manualmente.");
+            return;
+        }
+        if (tomasulo.finished) {
+            alert("Execução está completa.");
+            return;
+        }
+        $("#clock").html("<h3>Clock:" + tomasulo.cycle + "</h3>");
+        tomasulo.run();
+    })
+    
+    $("#loadEx").click(function() {
+        var exN = document.getElementById("exSelect").value;
+        if (parseInt(exN) === 0) {
+            alert("Lembre-se de selecionar um exemplo.");
+            return;
+        }
+        var link = "./exemplos/" + exN + ".txt";
+        // var link = "https://files.catbox.moe/x27a7j.txt";
+        $.get(link, function() {}).fail(function() {
+            alert("Não foi possível carregar o exemplo.")
+        }).done(function(data) {
+            document.getElementById("instBox").value = "";
+            var opcode;
+            data = data.split("\n");
+            read_config(data);
+            // talvez desnecessário
+            for (let i = 10; i < data.length; i++) {
+                document.getElementById("instBox").value += data[i];
+            }
+        });
+    });
+
+    $("#instReset").click(function() {
+        document.getElementById("instBox").value = "";
+    })
+
+    $("#resetAll").click(function() {
+        $("#exSelect").val("---");
+        document.getElementById("instBox").value = "";
+        loaded = false;
+        for (let i = 0; i < instructions.q.length; i++) {
+            instructions.pop_front();
+        }
+
+        for (var key in config) {
+            $(`#${key}`).val("1");
+        }
+        tomasulo = null;
+
+        $("#clock").html("");
+        $("#estadoInstrucao").html("");
+        // $("#estadoMemUF").html("");
+        $("#estadoUF").html("");
+        $("#estadoMem").html("");
+    })
+    
+    $("#loadTomasulo").click(function() {
+        if (document.getElementById("instBox").value === "") {
+            alert("Não há instruções escritas...");
+            return;
+        }
+        var data = document.getElementById("instBox").value;
+        var opcode;
+        data = data.split("\n");
+        for (var key in config) {
+            config[key] = document.getElementById(key).value;
+        }
+
+        // console.log(config);
+
+        for (let i = 0; i < data.length; i++) {
+            opcode = data[i].split(" ")[0];
+            // código para verificar se instruções estão escritas corretamente
+            instructions.push_back(new Instruction(data[i], config[opcode]));
+        }
+        loaded = true;
+        tomasulo = new Tomasulo(instructions);
+
+        // começar preparativos
+        $("#clock").html("<h3>Clock: 0</h3>");
+        instructionStatus();
+        reservationStatus();
+        registerStatus();
+    });
+
+    function instructionStatus() {
+        var state = "<h3>Estado das instruções</h3>";
+        state += "<table id=\"instTable\"><tr><th>Instrução</th><th>i</th><th>j</th><th>k</th><th>Issue</th><th>Exec</th><th>Write</th></tr>"; 
+        for (let i = 0; i < tomasulo.instructions.length(); i++) {
+            state += "<tr>" 
+            state += "<td>" + tomasulo.table.instructions[i].inst + "</td>";
+            state += "<td>" + tomasulo.table.instructions[i].i + "</td>";
+            state += "<td>" + tomasulo.table.instructions[i].j + "</td>";
+            state += "<td>" + tomasulo.table.instructions[i].k + "</td>";
+            state += "<td id=\"tomasTableS0" + i + "\"></td>";
+            state += "<td id=\"tomasTableS1" + i + "\"></td>";
+            state += "<td id=\"tomasTableS2" + i + "\"></td>";
+            state += "</tr>";
+        }
+
+        state += "</table>";
+        $("#estadoInstrucao").html(state);
+    }
+
+    function reservationStatus() {
+        var state = "<h3>Estado das RS</h3>";
+        state += "<table id=\"rsTable\"><tr><th>Tempo</th><th>RS</th><th>Busy</th><th>OP</th><th>Vj</th><th>Vk</th><th>Qj</th><th>Qk</th><tr>";
+        // LU
+        for (let i = 0; i < 6; i++) {
+            state += "<tr>";
+            state += "<td id=\"LUtime" + i + "\"></td><td>Load Unit " + i + "</td><td id=\"LUbusy" + i + "\"></td><td id=\"LUop" + i + "\"></td><td id=\"LUvj" + i + "\"></td>";
+            state += "<td id=\"LUvk" + i + "\"></td><td id=\"LUqj" + i + "\"></td><td id=\"LUqk" + i + "\"></td>";
+            state += "</tr>";
+        }
+        // SU
+        for (let i = 0; i < 3; i++) {
+            state += "<tr>";
+            state += "<td id=\"SUtime" + i + "\"></td><td>Store Unit " + i + "</td><td id=\"SUbusy" + i + "\"></td><td id=\"SUop" + i + "\"></td><td id=\"SUvj" + i + "\"></td>";
+            state += "<td id=\"SUvk" + i + "\"></td><td id=\"SUqj" + i + "\"></td><td id=\"SUqk" + i + "\"></td>";
+            state += "</tr>";
+        }
+        // IADD
+        for (let i = 0; i < 3; i++) {
+            state += "<tr>";
+            state += "<td id=\"IADDtime" + i + "\"></td><td>Integer Unit " + i + "</td><td id=\"IADDbusy" + i + "\"></td><td id=\"IADDop" + i + "\"></td><td id=\"IADDvj" + i + "\"></td>";
+            state += "<td id=\"IADDvk" + i + "\"></td><td id=\"IADDqj" + i + "\"></td><td id=\"IADDqk" + i + "\"></td>";
+            state += "</tr>";
+        }
+        // FADD
+        for (let i = 0; i < 3; i++) {
+            state += "<tr>";
+            state += "<td id=\"FADDtime" + i + "\"></td><td>FAddSub Unit " + i + "</td><td id=\"FADDbusy" + i + "\"></td><td id=\"FADDop" + i + "\"></td><td id=\"FADDvj" + i + "\"></td>";
+            state += "<td id=\"FADDvk" + i + "\"></td><td id=\"FADDqj" + i + "\"></td><td id=\"FADDqk" + i + "\"></td>";
+            state += "</tr>";
+        }
+        // MD
+        for (let i = 0; i < 2; i++) {
+            state += "<tr>";
+            state += "<td id=\"MDtime" + i + "\"></td><td>MultDiv Unit " + i + "</td><td id=\"MDbusy" + i + "\"></td><td id=\"MDop" + i + "\"></td><td id=\"MDvj" + i + "\"></td>";
+            state += "<td id=\"MDvk" + i + "\"></td><td id=\"MDqj" + i + "\"></td><td id=\"MDqk" + i + "\"></td>";
+            state += "</tr>";
+        }
+        state += "</table>";
+        state += "<h7>Detalhe: Quando houver um x na frente da station,<br>significa que o valor está pronto.</h7>"
+        $("#estadoUF").html(state);
+    }
+
+    function registerStatus() {
+        var state = "<h3>Estado dos registradores</h3>";
+        state += "<table id=\"regTable\">";
+        state += "<tr>";
+        for (var i = 0; i < 8; i++) {
+            state += "<th>F" + (i * 2) + "</th>";
+        }
+        state += "</tr><tr>";
+        for (var i = 0; i < 8; i++) {
+            state += "<td id=\"F" + (i * 2) + "\">&nbsp;</th>";
+        }
+        state += "</tr>";
+        for (var i = 0; i < 8; i++) {
+            state += "<th>R" + i + "</th>";
+        }
+        state += "</tr><tr>";
+        for (var i = 0; i < 8; i++) {
+            state += "<td id=\"R" + i + "\">&nbsp;</th>";
+        }
+        state += "</tr>";
+
+        state += "</table><br>";
+        $("#memoria").html(state);
+    }
+
+
+    function verifyInstruction(instLine) {
+
+    }
+
+});
+
+
 
 // modo lento
 // on button click: t.run()
