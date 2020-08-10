@@ -1285,6 +1285,9 @@ $(document).ready(function() {
 
 
         for (let i = 0; i < data.length; i++) {
+            if (data[i] === "") {
+                continue;   
+            }
             opcode = data[i].split(" ")[0];
             if(verifyInstruction(i, data[i])) {
                 instructions.push_back(new Instruction(data[i], config[opcode]));
