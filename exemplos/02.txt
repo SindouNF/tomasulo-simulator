@@ -8,7 +8,6 @@
 1
 1
 1
-
 LD F6,34(R2)
 LD F2,45(R3)
 MULTD F0,F2,F4

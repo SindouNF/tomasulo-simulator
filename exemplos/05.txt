@@ -8,7 +8,6 @@
 1
 1
 1
-
 LD F0,0(R1)
 MULTD F4,F0,F2
 SD F4,0(R1)
