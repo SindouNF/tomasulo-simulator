@@ -8,14 +8,14 @@ class Instruction {
         switch (this.opcode) {
             case "SD":
                 this.type = "S";
-                this.i = this.resto[0];
-                this.j = this.resto[1].split("(")[0]; // offset
+                this.j = this.resto[0];
+                this.i = this.resto[1].split("(")[0]; // offset
                 this.k = this.resto[1].split("(")[1].split(")")[0]; // base
                 break;
             case "LD":
                 this.type = "L";
-                this.i = this.resto[0];
-                this.j = this.resto[1].split("(")[0]; // offset
+                this.j = this.resto[0];
+                this.i = this.resto[1].split("(")[0]; // offset
                 this.k = this.resto[1].split("(")[1].split(")")[0]; // base
 
                 break;
@@ -482,10 +482,10 @@ class ExeUnit {
                 if (!this.integer_unit[i].busy) {
                     // tem station disponivel
                     this.integer_unit[i].add_instruction(instruction, rstations, cycle);
-                    this.registers.add_station(instruction.j, "IntegerUnit", i);
-                    if (instruction.k !== undefined) {
-                        this.registers.add_station(instruction.k, "IntegerUnit", i);
-                    }
+                    // registers.add_station(instruction.j, "IntegerUnit", i);
+                    // if (instruction.k !== undefined) {
+                    //    this.registers.add_station(instruction.k, "IntegerUnit", i);
+                    // }
                     return true; // true adicionou
                 }
             }
@@ -687,6 +687,7 @@ class ExeUnit {
                             this.float_mult_div_unit[j].qk = null;
                         }
                     }
+                    /*
                     if (instruction.opcode === "BEQ") {
                         this.registers.update_reg_prefix(instruction.j, ("IntegerUnit" + i));
                         this.registers.update_reg_prefix(instruction.k, ("IntegerUnit" + i));
@@ -694,7 +695,8 @@ class ExeUnit {
                         this.registers.update_reg_prefix(instruction.j, ("IntegerUnit" + i));
                     } else {
                         this.registers.update_reg_prefix(instruction.i, ("IntegerUnit" + i));
-                    }
+                    }*/
+                    this.registers.update_reg_prefix(instruction.i, ("IntegerUnit" + i));
                     this.integer_unit[i].clear();
                     return;
                 }
@@ -1307,20 +1309,38 @@ $(document).ready(function() {
         for (let i = 0; i < tomasulo.instructions.length(); i++) {
             state += "<tr>" 
             state += "<td>" + tomasulo.table.instructions[i].inst + "</td>";
-            if(tomasulo.table.instructions[i].i !== undefined) {
-                state += "<td>" + tomasulo.table.instructions[i].i + "</td>";
+            if (tomasulo.table.instructions[i].opcode === "SD" || tomasulo.table.instructions[i].opcode === "LD") {
+                if(tomasulo.table.instructions[i].j !== undefined) {
+                    state += "<td>" + tomasulo.table.instructions[i].j + "</td>";
+                } else {
+                    state += "<td></td>";
+                }
+                if(tomasulo.table.instructions[i].i !== undefined) {
+                    state += "<td>" + tomasulo.table.instructions[i].i + "</td>";
+                } else {
+                    state += "<td></td>";
+                }
+                if(tomasulo.table.instructions[i].k !== undefined) {
+                    state += "<td>" + tomasulo.table.instructions[i].k + "</td>";
+                } else {
+                    state += "<td></td>";
+                }
             } else {
-                state += "<td></td>";
-            }
-            if(tomasulo.table.instructions[i].j !== undefined) {
-                state += "<td>" + tomasulo.table.instructions[i].j + "</td>";
-            } else {
-                state += "<td></td>";
-            }
-            if(tomasulo.table.instructions[i].k !== undefined) {
-                state += "<td>" + tomasulo.table.instructions[i].k + "</td>";
-            } else {
-                state += "<td></td>";
+                if(tomasulo.table.instructions[i].i !== undefined) {
+                    state += "<td>" + tomasulo.table.instructions[i].i + "</td>";
+                } else {
+                    state += "<td></td>";
+                }
+                if(tomasulo.table.instructions[i].j !== undefined) {
+                    state += "<td>" + tomasulo.table.instructions[i].j + "</td>";
+                } else {
+                    state += "<td></td>";
+                }
+                if(tomasulo.table.instructions[i].k !== undefined) {
+                    state += "<td>" + tomasulo.table.instructions[i].k + "</td>";
+                } else {
+                    state += "<td></td>";
+                }
             }
             state += "<td id=\"tomasTableS0" + i + "\"></td>";
             state += "<td id=\"tomasTableS1" + i + "\"></td>";
@@ -1494,7 +1514,7 @@ $(document).ready(function() {
                 }
             }
             if (opcode === "DADDUI") {
-                var regex = /^R[0-7],R[0-7],[0-9]+$/;
+                var regex = /^R[0-7],R[0-7],(-[0-9]+|([0-9]+))$/;
                 if (regex.test(data)) {
                     return true;
                 } else {
