@@ -1326,7 +1326,7 @@ $(document).ready(function() {
             read_config(data);
             // talvez desnecessário
             for (let i = 10; i < data.length; i++) {
-                document.getElementById("instBox").value += data[i];
+                document.getElementById("instBox").value += data[i] + "\n";
             }
         });
     });
