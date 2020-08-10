@@ -1233,7 +1233,7 @@ $(document).ready(function() {
             alert("Lembre-se de selecionar um exemplo.");
             return;
         }
-        var link = "./exemplos/" + exN + ".txt";
+        var link = "https://raw.githubusercontent.com/noirecat/tomasulo-simulator/master/exemplos/" + exN + ".txt";
         // var link = "https://files.catbox.moe/x27a7j.txt";
         $.get(link, function() {}).fail(function() {
             alert("Não foi possível carregar o exemplo.")
