@@ -14,8 +14,8 @@ class Instruction {
                 break;
             case "LD":
                 this.type = "L";
-                this.j = this.resto[0];
-                this.i = this.resto[1].split("(")[0]; // offset
+                this.i = this.resto[0];
+                this.j = this.resto[1].split("(")[0]; // offset
                 this.k = this.resto[1].split("(")[1].split(")")[0]; // base
 
                 break;
@@ -1286,7 +1286,7 @@ $(document).ready(function() {
 
         for (let i = 0; i < data.length; i++) {
             if (data[i] === "") {
-                continue;   
+                continue
             }
             opcode = data[i].split(" ")[0];
             if(verifyInstruction(i, data[i])) {
@@ -1312,7 +1312,7 @@ $(document).ready(function() {
         for (let i = 0; i < tomasulo.instructions.length(); i++) {
             state += "<tr>" 
             state += "<td>" + tomasulo.table.instructions[i].inst + "</td>";
-            if (tomasulo.table.instructions[i].opcode === "SD" || tomasulo.table.instructions[i].opcode === "LD") {
+            if (tomasulo.table.instructions[i].opcode === "SD") {
                 if(tomasulo.table.instructions[i].j !== undefined) {
                     state += "<td>" + tomasulo.table.instructions[i].j + "</td>";
                 } else {
