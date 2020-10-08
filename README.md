@@ -12,6 +12,7 @@ Neste repositório se encontra a implementação do algoritmo de Tomasulo feita 
 * Estar conectado à internet, caso opte por executar usando o GitHub Pages.
 
 # Execução
+
 ## Execução offline
 1. Clonar o repositório em alguma pasta no computador:
 ```
